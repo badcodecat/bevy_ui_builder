@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy::ui::FlexDirection;
 
-fn main() {
+fn main()
+{
 	App::new()
 		.add_plugins(DefaultPlugins)
 		.add_startup_system(setup)
@@ -15,7 +16,7 @@ fn setup
 {
 	commands.spawn(Camera2dBundle::default());
 
-	let root = commands.spawn
+	let root_column = commands.spawn
 	(
 		NodeBundle
 		{
@@ -37,7 +38,7 @@ fn setup
         {
 			style: Style
 			{
-				size: Size::new(Val::Px(200.0), Val::Px(100.0)),
+				size: Size::new(Val::Percent(50.0), Val::Percent(25.0)),
 				justify_content: JustifyContent::Center,
 				align_items: AlignItems::Center,
 				..Default::default()
@@ -53,7 +54,7 @@ fn setup
 		{
 			style: Style
 			{
-				size: Size::new(Val::Px(150.0), Val::Px(75.0)),
+				size: Size::new(Val::Percent(50.0), Val::Percent(25.0)),
 				justify_content: JustifyContent::Center,
 				align_items: AlignItems::Center,
 				..Default::default()
@@ -63,6 +64,6 @@ fn setup
 		}
 	).id();
 
-	commands.entity(root)
+	commands.entity(root_column)
 		.push_children(&[node1, node2]);
 }
