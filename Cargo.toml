@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 bevy = "0.10.1"
 dark-light = "1.0.0"
+once_cell = "1.18.0"

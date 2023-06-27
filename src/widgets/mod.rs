@@ -17,6 +17,8 @@ pub use column::*;
 pub mod row;
 pub use row::*;
 
+use crate::theme;
+
 pub trait WidgetBuilder
 {
 	fn build(&self, commands: &mut Commands) -> Entity;
