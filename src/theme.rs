@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use bevy::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -38,6 +40,17 @@ pub struct ThemePallete
 
 	pub destructive: Color,
 	pub destructive_foreground: Color,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Resource)]
+pub struct CurrentTheme<W>(pub ThemePallete, pub PhantomData<W>);
+
+impl<W> CurrentTheme<W>
+{
+	fn as_theme_pallete(&self) -> &ThemePallete
+	{
+		&self.0
+	}
 }
 
 // See https://m3.material.io/foundations/accessible-design/patterns#c06040d0-f7dd-43d8-af92-384bbb3b0544

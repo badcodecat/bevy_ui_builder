@@ -1,16 +1,24 @@
 use bevy::prelude::*;
-use bevy_ui_builder::prelude::*;
+use bevy_ui_builder::{prelude::*, theme::CurrentTheme};
+
+#[derive(Default, Component)]
+pub struct MyUI;
 
 fn main()
 {
 	App::new()
 		.add_plugins(DefaultPlugins)
-		.add_startup_system(setup)
+		.add_plugin
+		(
+			bevy_ui_builder::UIBuilderPlugin::<MyUI>::new()
+				.register_builder::<MyUI>(Box::new(IntoSystem::into_system(setup)))
+		)
 		.run();
 }
 
-fn setup(mut commands: Commands)
+fn setup(mut commands: Commands, theme: Res<CurrentTheme<MyUI>>)
 {
+	println!("Hello world");
 	commands.spawn(Camera2dBundle::default());
 	let column = bevy_ui_builder::widgets::Column::new();
 	let node1 = bevy_ui_builder::widgets::Column::new()
@@ -27,5 +35,6 @@ fn setup(mut commands: Commands)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
+		.build(&theme.0, &mut commands)
         ;
 }
