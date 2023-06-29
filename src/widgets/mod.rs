@@ -17,16 +17,14 @@ pub use column::*;
 pub mod row;
 pub use row::*;
 
-use crate::theme;
-
 pub trait WidgetBuilder
 {
-	fn build(&self, commands: &mut Commands) -> Entity;
+	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity;
 }
 
 impl WidgetBuilder for Entity
 {
-	fn build(&self, _: &mut Commands) -> Entity
+	fn build(&self, _: &crate::theme::ThemePallete, _: &mut Commands) -> Entity
 	{
 		*self
 	}

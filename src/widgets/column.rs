@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::theme::ThemePallete;
+
 use super::*;
 
 use super::Container;
@@ -42,9 +44,9 @@ impl super::Widget for Column
 
 impl super::WidgetBuilder for Column
 {
-	fn build(&self, commands: &mut Commands) -> Entity
+	fn build(&self, theme: &ThemePallete, commands: &mut Commands) -> Entity
 	{
-		self.container.build(commands)
+		self.container.build(theme, commands)
 	}
 }
 

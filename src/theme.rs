@@ -1,27 +1,43 @@
 use bevy::prelude::*;
 
-pub struct Theme
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Theme
+{
+	Background,
+	Primary,
+	Secondary,
+	Tertiary,
+	Disabled,
+	Destructive,
+	Auto
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ThemePallete
 {
 	pub background: Color,
 	pub on_background: Color,
 
 	pub primary: Color,
-	pub on_primary: Color,
+	pub primary_foreground: Color,
 	pub primary_container: Color,
-	pub on_primary_container: Color,
+	pub primary_container_foreground: Color,
 
 	pub secondary: Color,
-	pub on_secondary: Color,
+	pub secondary_foreground: Color,
 	pub secondary_container: Color,
-	pub on_secondary_container: Color,
+	pub secondary_container_foreground: Color,
 
 	pub tertiary: Color,
-	pub on_tertiary: Color,
+	pub tertiary_foreground: Color,
 	pub tertiary_container: Color,
-	pub on_tertiary_container: Color,
+	pub tertiary_container_foreground: Color,
 
 	pub disabled: Color,
-	pub on_disabled: Color,
+	pub disabled_foreground: Color,
+
+	pub destructive: Color,
+	pub destructive_foreground: Color,
 }
 
 // See https://m3.material.io/foundations/accessible-design/patterns#c06040d0-f7dd-43d8-af92-384bbb3b0544
@@ -55,18 +71,19 @@ impl ShiftColour for Color
 
 }
 
-impl Theme
+impl ThemePallete
 {
 	fn is_accessible(&self)
 	{
 		assert!(is_contrast_accessible(self.background, self.on_background));
-		assert!(is_contrast_accessible(self.primary, self.on_primary));
-		assert!(is_contrast_accessible(self.primary_container, self.on_primary_container));
-		assert!(is_contrast_accessible(self.secondary, self.on_secondary));
-		assert!(is_contrast_accessible(self.secondary_container, self.on_secondary_container));
-		assert!(is_contrast_accessible(self.tertiary, self.on_tertiary));
-		assert!(is_contrast_accessible(self.tertiary_container, self.on_tertiary_container));
-		assert!(is_contrast_accessible(self.disabled, self.on_disabled));
+		assert!(is_contrast_accessible(self.primary, self.primary_foreground));
+		assert!(is_contrast_accessible(self.primary_container, self.primary_container_foreground));
+		assert!(is_contrast_accessible(self.secondary, self.secondary_foreground));
+		assert!(is_contrast_accessible(self.secondary_container, self.secondary_container_foreground));
+		assert!(is_contrast_accessible(self.tertiary, self.tertiary_foreground));
+		assert!(is_contrast_accessible(self.tertiary_container, self.tertiary_container_foreground));
+		assert!(is_contrast_accessible(self.disabled, self.disabled_foreground));
+ 		assert!(is_contrast_accessible(self.destructive, self.destructive_foreground));
 	}
 }
 
@@ -86,34 +103,83 @@ pub mod themes
 {
 	use once_cell::sync::Lazy;
 	use super::*;
-	pub static  DARK: Lazy<Theme> = Lazy::new
+	pub static DARK: Lazy<ThemePallete> = Lazy::new
 	(
 		||
-		Theme
+		ThemePallete
 		{
 			background: Color::BLACK,
 			on_background: Color::WHITE,
 
 			primary: colours::RAISIN_BLACK.lighten(0.75),
-			on_primary: *colours::RAISIN_BLACK,
+			primary_foreground: *colours::RAISIN_BLACK,
 			primary_container: colours::RAISIN_BLACK.lighten(0.33),
-			on_primary_container: colours::RAISIN_BLACK.lighten(0.9),
+			primary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
 
 			secondary: colours::ENGLISH_VIOLET.lighten(0.75),
-			on_secondary: *colours::ENGLISH_VIOLET,
-			secondary_container: colours::ENGLISH_VIOLET.lighten(0.66),
-			on_secondary_container: colours::ENGLISH_VIOLET.lighten(0.9),
+			secondary_foreground: *colours::ENGLISH_VIOLET,
+			secondary_container: colours::ENGLISH_VIOLET.lighten(0.33),
+			secondary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
 
 			tertiary: colours::WALNUT_BROWN.lighten(0.75),
-			on_tertiary: *colours::WALNUT_BROWN,
-			tertiary_container: colours::WALNUT_BROWN.lighten(0.66),
-			on_tertiary_container: colours::WALNUT_BROWN.lighten(0.9),
+			tertiary_foreground: *colours::WALNUT_BROWN,
+			tertiary_container: colours::WALNUT_BROWN.lighten(0.20),
+			tertiary_container_foreground: colours::WALNUT_BROWN.lighten(0.9),
 
-			disabled: Color::GRAY,
-			on_disabled: Color::WHITE
+			disabled: Color::GRAY.darken(0.33),
+			disabled_foreground: Color::WHITE,
+
+			destructive: Color::RED,
+			destructive_foreground: Color::WHITE
+		}
+	);
+
+	pub static LIGHT: Lazy<ThemePallete> = Lazy::new
+	(
+		||
+		ThemePallete
+		{
+ 			background: Color::WHITE,
+			on_background: Color::BLACK,
+
+			primary: colours::RAISIN_BLACK.darken(0.75),
+			primary_foreground: *colours::RAISIN_BLACK,
+			primary_container: colours::RAISIN_BLACK.darken(0.33),
+			primary_container_foreground: colours::RAISIN_BLACK.darken(0.9),
+
+			secondary: colours::ENGLISH_VIOLET.darken(0.75),
+			secondary_foreground: *colours::ENGLISH_VIOLET,
+			secondary_container: colours::ENGLISH_VIOLET.darken(0.33),
+			secondary_container_foreground: colours::ENGLISH_VIOLET.darken(0.9),
+
+			tertiary: colours::WALNUT_BROWN.darken(0.75),
+			tertiary_foreground: *colours::WALNUT_BROWN,
+			tertiary_container: colours::WALNUT_BROWN.darken(0.20),
+			tertiary_container_foreground: colours::WALNUT_BROWN.darken(0.9),
+
+			disabled: Color::GRAY.lighten(0.33),
+			disabled_foreground: Color::BLACK,
+
+			destructive: Color::RED,
+			destructive_foreground: Color::BLACK
 		}
 	);
 }
+
+impl Default for ThemePallete
+{
+	fn default() -> Self
+	{
+		match dark_light::detect()
+		{
+			dark_light::Mode::Dark => themes::DARK.clone(),
+			dark_light::Mode::Light => themes::LIGHT.clone(),
+			dark_light::Mode::Default => themes::DARK.clone()
+		}
+	}
+}
+
+
 // TODO: Remove this warning when the function has been verified or rewritten.
 /// WARNING: This entire function was generated by ChatGPT and GitHub Copilot,
 pub fn get_contrast_ratio(color1: Color, color2: Color) -> f64

@@ -27,5 +27,5 @@ fn setup(mut commands: Commands)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
-		.build(&mut commands);
+        ;
 }

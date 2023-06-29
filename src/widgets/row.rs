@@ -42,9 +42,9 @@ impl super::Widget for Row
 
 impl super::WidgetBuilder for Row
 {
-	fn build(&self, commands: &mut Commands) -> Entity
+	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
 	{
-		self.container.build(commands)
+		self.container.build(theme, commands)
 	}
 }
 

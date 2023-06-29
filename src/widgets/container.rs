@@ -86,10 +86,10 @@ impl super::Widget for Container
 
 impl super::WidgetBuilder for Container
 {
-	fn build(&self, commands: &mut Commands) -> Entity
+	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
 	{
 		let root = commands.spawn(self.node_bundle.clone()).id(); // TODO: See if we can avoid cloning the node bundle.
-		let children: Vec<Entity> = self.children.iter().map(|child| child.build(commands)).collect();
+		let children: Vec<Entity> = self.children.iter().map(|child| child.build(theme, commands)).collect();
 		commands.entity(root).push_children(&children);
 		root
 	}
