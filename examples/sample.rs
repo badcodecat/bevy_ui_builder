@@ -18,7 +18,6 @@ fn main()
 
 fn setup(mut commands: Commands, theme: Res<CurrentTheme<MyUI>>)
 {
-	println!("Hello world");
 	commands.spawn(Camera2dBundle::default());
 	let column = bevy_ui_builder::widgets::Column::new();
 	let node1 = bevy_ui_builder::widgets::Column::new()
