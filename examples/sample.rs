@@ -11,7 +11,7 @@ fn main()
 		.add_plugin
 		(
 			bevy_ui_builder::UIBuilderPlugin::<MyUI>::new()
-				.register_builder::<MyUI>(Box::new(IntoSystem::into_system(setup)))
+				.register_builder::<MyUI, _>(setup)
 		)
 		.run();
 }

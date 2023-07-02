@@ -14,14 +14,6 @@ pub struct UIBuilderPlugin<D: Component>
 	_d: std::marker::PhantomData<D>,
 }
 
-fn boxed_system_from_intosystemconfig<M>(system: impl IntoSystemConfig<M>) -> BoxedSystem
-{
-	let system = IntoSystemConfig::<(), (), M>::into_system_config(system);
-	let system = FunctionSystem::<(), (), M>::from(system);
-	let system = BoxedSystem::new(system);
-	system
-}
-
 impl<D: Component> UIBuilderPlugin<D>
 {
 	pub fn new() -> Self
@@ -43,19 +35,19 @@ impl<D: Component> UIBuilderPlugin<D>
 	}
 
 
-	pub fn register_builder<C: Component + Default>(mut self, builder: impl IntoSystem<(), (), fn(&mut App)>) -> Self
+	pub fn register_builder<C: Component + Default, M>(mut self, builder: impl IntoSystem<(), (), M>) -> Self
 	{
-        use std::any::Any;
-		let builder = Box::new(IntoSystem::<(), (), fn(&mut App)>::into_system(builder));
+		let builder = Box::new(IntoSystem::into_system(builder));
+		use std::any::Any;
 		self.builders.insert(C::default().type_id(), builder);
 		self
 	}
 
-	pub fn update_on<C: Component + Default, X>(mut self, updater: impl IntoSystem<(), (), X>) -> Self
+	pub fn update_on<C: Component + Default, M>(mut self, updater: impl IntoSystem<(), (), M>) -> Self
 	{
 
         use std::any::Any;
-		let updater = Box::new(IntoSystem::<(), (), X>::into_system(updater));
+		let updater = Box::new(IntoSystem::<(), (), M>::into_system(updater));
 		let updaters = self.updaters.entry(C::default().type_id()).or_insert_with(|| Vec::new());
 		updaters.push(updater);
 		self
@@ -99,7 +91,10 @@ mod tests
 			commands.insert_resource(TestResource(MAGIC_NUMBER));
 		}
 		let mut plugin = UIBuilderPlugin::<TestUI>::new()
-			.register_builder::<TestUI>(test_insert_resource);
+			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
+		app.update();
+		let test_resource = app.world.get_resource::<TestResource>().expect("TestResource not inserted");
+		assert_eq!(test_resource.0, MAGIC_NUMBER);
 	}
 }
