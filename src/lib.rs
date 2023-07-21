@@ -1,5 +1,5 @@
 use std::{collections::HashMap, any::TypeId, marker::PhantomData};
-use bevy::{prelude::*, ecs::{system::{BoxedSystem, FunctionSystem}, schedule::SystemConfig}};
+use bevy::{ prelude::*, ecs::system::BoxedSystem };
 
 pub mod prelude;
 pub mod widgets;
@@ -90,7 +90,7 @@ mod tests
 		{
 			commands.insert_resource(TestResource(MAGIC_NUMBER));
 		}
-		let mut plugin = UIBuilderPlugin::<TestUI>::new()
+		let plugin = UIBuilderPlugin::<TestUI>::new()
 			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
 		app.update();
