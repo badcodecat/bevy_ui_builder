@@ -5,7 +5,7 @@ fn main()
 {
 	App::new()
 		.add_plugins(DefaultPlugins)
-		.add_startup_system(setup)
+		.add_systems(Startup, setup)
 		.run();
 }
 
@@ -22,7 +22,8 @@ fn setup
 		{
 			style: Style
 			{
-				size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+				width: Val::Percent(100.0),
+				height: Val::Percent(100.0),
 				flex_direction: FlexDirection::Column,
 				justify_content: JustifyContent::Center,
 				align_items: AlignItems::Center,
@@ -38,7 +39,8 @@ fn setup
         {
 			style: Style
 			{
-				size: Size::new(Val::Percent(50.0), Val::Percent(25.0)),
+				width: Val::Percent(50.0),
+				height: Val::Percent(25.0),
 				justify_content: JustifyContent::Center,
 				align_items: AlignItems::Center,
 				..Default::default()
@@ -54,13 +56,14 @@ fn setup
 		{
 			style: Style
 			{
-				size: Size::new(Val::Percent(50.0), Val::Percent(25.0)),
+				width: Val::Percent(50.0),
+				height: Val::Percent(25.0),
 				justify_content: JustifyContent::Center,
 				align_items: AlignItems::Center,
 				..Default::default()
 			},
-        background_color: Color::GREEN.into(),
-		..Default::default()
+			background_color: Color::GREEN.into(),
+			..Default::default()
 		}
 	).id();
 

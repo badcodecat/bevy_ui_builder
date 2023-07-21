@@ -20,7 +20,8 @@ impl Container
 			{
 				style: Style
 				{
-					size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+					width: Val::Percent(100.0),
+					height: Val::Percent(100.0),
 					justify_content: JustifyContent::Center,
 					align_items: AlignItems::Center,
 					..Default::default()
@@ -36,9 +37,10 @@ impl Container
 		self
 	}
 
-	pub fn with_size(mut self, size: Size) -> Self
+	pub fn with_size(mut self, width: Val, height: Val) -> Self
 	{
-		self.node_bundle.style.size = size;
+		self.node_bundle.style.width = width;
+		self.node_bundle.style.height = height;
 		self
 	}
 }

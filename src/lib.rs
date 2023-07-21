@@ -1,5 +1,5 @@
 use std::{collections::HashMap, any::TypeId, marker::PhantomData};
-use bevy::{prelude::*, app::SystemAppConfig, ecs::{system::{BoxedSystem, FunctionSystem}, schedule::SystemConfig}};
+use bevy::{prelude::*, ecs::{system::{BoxedSystem, FunctionSystem}, schedule::SystemConfig}};
 
 pub mod prelude;
 pub mod widgets;
@@ -65,7 +65,7 @@ impl<D: Component + Default> Plugin for UIBuilderPlugin<D>
 		let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D>, &mut UIBuilderPlugin<D>>(self) };
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
-			.add_startup_system(root_builder)
+			.add_systems(Startup, root_builder)
 			.insert_resource(theme::CurrentTheme::<D>(self.theme.clone(), PhantomData))
 			;
 	}
