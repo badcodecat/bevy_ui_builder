@@ -36,7 +36,7 @@ fn setup
 	let node1 = commands.spawn
 	(
 		NodeBundle
-        {
+		{
 			style: Style
 			{
 				width: Val::Percent(50.0),

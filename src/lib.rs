@@ -46,7 +46,7 @@ impl<D: Component> UIBuilderPlugin<D>
 	pub fn update_on<C: Component + Default, M>(mut self, updater: impl IntoSystem<(), (), M>) -> Self
 	{
 
-        use std::any::Any;
+		use std::any::Any;
 		let updater = Box::new(IntoSystem::<(), (), M>::into_system(updater));
 		let updaters = self.updaters.entry(C::default().type_id()).or_insert_with(|| Vec::new());
 		updaters.push(updater);

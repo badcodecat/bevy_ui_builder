@@ -8,7 +8,7 @@ fn main()
 {
 	App::new()
 		.add_plugins(DefaultPlugins)
-		.add_plugin
+		.add_plugins
 		(
 			bevy_ui_builder::UIBuilderPlugin::<MyUI>::new()
 				.register_builder::<MyUI, _>(setup)
@@ -35,5 +35,5 @@ fn setup(mut commands: Commands, theme: Res<CurrentTheme<MyUI>>)
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.build(&theme.0, &mut commands)
-        ;
+		;
 }
