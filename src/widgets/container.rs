@@ -3,13 +3,14 @@ use bevy::prelude::*;
 use super::WidgetBuilder;
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
-pub struct Container
+pub struct Container<U>
+	where U: Component + Default
 {
-	pub children: Vec<Box<dyn WidgetBuilder>>,
-    pub node_bundle: NodeBundle,
+	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
+	pub node_bundle: NodeBundle,
 }
 
-impl Container
+impl<U: Component + Default> Container<U>
 {
 	pub fn new() -> Self
 	{
@@ -31,7 +32,7 @@ impl Container
 		}
 	}
 
-	pub fn push(mut self, child: impl Into<Box<dyn WidgetBuilder>>) -> Self
+	pub fn push(mut self, child: impl Into<Box<dyn WidgetBuilder<U>>>) -> Self
 	{
 		self.children.push(child.into());
 		self
@@ -45,7 +46,7 @@ impl Container
 	}
 }
 
-impl super::Widget for Container
+impl<U: Component + Default> super::Widget for Container<U>
 {
 	fn with_colour(mut self, colour: Color) -> Self
 	{
@@ -86,20 +87,22 @@ impl super::Widget for Container
 
 }
 
-impl super::WidgetBuilder for Container
+impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
 	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
 	{
 		let root = commands.spawn(self.node_bundle.clone()).id(); // TODO: See if we can avoid cloning the node bundle.
 		let children: Vec<Entity> = self.children.iter().map(|child| child.build(theme, commands)).collect();
-		commands.entity(root).push_children(&children);
+		commands.entity(root)
+			.insert(U::default())
+			.push_children(&children);
 		root
 	}
 }
 
-impl From<Container> for Box<dyn WidgetBuilder>
+impl<U: Component + Default> From<Container<U>> for Box<dyn WidgetBuilder<U>>
 {
-	fn from(container: Container) -> Self
+	fn from(container: Container<U>) -> Self
 	{
 		Box::new(container)
 	}

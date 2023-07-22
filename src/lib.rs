@@ -6,23 +6,25 @@ pub mod widgets;
 pub mod theme;
 
 
-pub struct UIBuilderPlugin<D: Component>
+pub struct UIBuilderPlugin<D: Component, S: States>
 {
 	pub theme: theme::ThemePallete,
 	pub builders: HashMap<TypeId, BoxedSystem>,
 	pub updaters: HashMap<TypeId, Vec<BoxedSystem>>,
+	pub state: S,
 	_d: std::marker::PhantomData<D>,
 }
 
-impl<D: Component> UIBuilderPlugin<D>
+impl<D: Component, S: States> UIBuilderPlugin<D, S>
 {
-	pub fn new() -> Self
+	pub fn new(state: S) -> Self
 	{
-		let mut result = Self
+		let result = Self
 		{
 			theme: theme::ThemePallete::default(),
 			builders: Default::default(),
 			updaters: Default::default(),
+			state: state,
 			_d: std::marker::PhantomData,
 		};
 		return result;
@@ -43,6 +45,13 @@ impl<D: Component> UIBuilderPlugin<D>
 		self
 	}
 
+	pub fn register_root_builder<M>(mut self, builder: impl IntoSystem<(), (), M>) -> Self
+	{
+		let builder = Box::new(IntoSystem::into_system(builder));
+		self.builders.insert(TypeId::of::<D>(), builder);
+		self
+	}
+
 	pub fn update_on<C: Component + Default, M>(mut self, updater: impl IntoSystem<(), (), M>) -> Self
 	{
 
@@ -52,9 +61,17 @@ impl<D: Component> UIBuilderPlugin<D>
 		updaters.push(updater);
 		self
 	}
+	// This is a system
+	fn destroy_ui_on_exit(mut commands: Commands, mut query: Query<Entity, With<D>>)
+	{
+		for entity in query.iter_mut()
+		{
+			commands.entity(entity).despawn_recursive();
+		}
+	}
 
 }
-impl<D: Component + Default> Plugin for UIBuilderPlugin<D>
+impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 {
 	fn build(&self, app: &mut App)
 	{
@@ -62,10 +79,11 @@ impl<D: Component + Default> Plugin for UIBuilderPlugin<D>
 		let root_component_id = D::default().type_id();
 		// Unsafe cast to &mut self
 		#[allow(mutable_transmutes)]
-		let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D>, &mut UIBuilderPlugin<D>>(self) };
+		let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D, S>, &mut UIBuilderPlugin<D, S>>(self) };
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
-			.add_systems(Startup, root_builder)
+			.add_systems(OnEnter(self.state.clone()), root_builder)
+			.add_systems(OnExit(self.state.clone()), Self::destroy_ui_on_exit)
 			.insert_resource(theme::CurrentTheme::<D>(self.theme.clone(), PhantomData))
 			;
 	}
@@ -80,7 +98,14 @@ mod tests
 	#[test]
 	fn unsafe_mut_transmute_still_works()
 	{
+		#[derive(Default, States, Debug, Hash, Eq, PartialEq, Clone, Copy)]
+		pub enum TestApplicationState
+		{
+			#[default]
+			Startup,
+		}
 		let mut app = App::new();
+		app.add_state::<TestApplicationState>();
 		#[derive(Default, Component)]
 		pub struct TestUI;
 		#[derive(Default, Resource)]
@@ -90,7 +115,7 @@ mod tests
 		{
 			commands.insert_resource(TestResource(MAGIC_NUMBER));
 		}
-		let plugin = UIBuilderPlugin::<TestUI>::new()
+		let plugin = UIBuilderPlugin::<TestUI, _>::new(TestApplicationState::Startup)
 			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
 		app.update();

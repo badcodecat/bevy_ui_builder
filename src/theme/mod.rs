@@ -89,6 +89,7 @@ impl ShiftColour for Color
 
 impl ThemePallete
 {
+	#[allow(dead_code)] // This is used in the tests, and should be used by users implementing their own themes.
 	fn is_accessible(&self)
 	{
 		assert!(is_contrast_accessible(self.background, self.on_background));

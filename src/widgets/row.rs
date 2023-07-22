@@ -4,12 +4,13 @@ use super::*;
 
 use super::Container;
 
-pub struct Row
+pub struct Row<U>
+	where U: Component + Default
 {
-	pub container: Container,
+	pub container: Container<U>,
 }
 
-impl Row
+impl<U: Component + Default> Row<U>
 {
 	pub fn new() -> Self
 	{
@@ -20,11 +21,11 @@ impl Row
 		}
 	}
 
-	pub fn push(mut self, child: impl Into<Box<dyn super::WidgetBuilder>>) -> Self
+	pub fn push(mut self, child: impl Into<Box<dyn super::WidgetBuilder<U>>>) -> Self
 		{ self.container = self.container.push(child); self }
 }
 
-impl super::Widget for Row
+impl<U: Component + Default> super::Widget for Row<U>
 {
 	fn with_colour(mut self, colour: Color) -> Self
 		{ self.container = self.container.with_colour(colour); self }
@@ -40,7 +41,7 @@ impl super::Widget for Row
 		{ self.container = self.container.with_fill_portion(fill_portion); self }
 }
 
-impl super::WidgetBuilder for Row
+impl<U: Component + Default> super::WidgetBuilder<U> for Row<U>
 {
 	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
 	{
@@ -48,9 +49,9 @@ impl super::WidgetBuilder for Row
 	}
 }
 
-impl Into<Box<dyn super::WidgetBuilder>> for Row
+impl<U: Component + Default> Into<Box<dyn super::WidgetBuilder<U>>> for Row<U>
 {
-	fn into(self) -> Box<dyn super::WidgetBuilder>
+	fn into(self) -> Box<dyn super::WidgetBuilder<U>>
 	{
 		Box::new(self)
 	}

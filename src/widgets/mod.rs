@@ -5,7 +5,7 @@ use bevy::prelude::*;
 pub mod container;
 pub use container::*;
 // Utility function to create a container with a fill portion.
-pub fn create_space(size: f32) -> container::Container
+pub fn create_space<U: Component + Default>(size: f32) -> container::Container<U>
 {
 	container::Container::new()
 		.with_fill_portion(size)
@@ -17,16 +17,17 @@ pub use column::*;
 pub mod row;
 pub use row::*;
 
-pub trait WidgetBuilder
+pub trait WidgetBuilder<U>
+	where U: Component + Default
 {
 	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity;
 }
 
-impl WidgetBuilder for Entity
+impl<U: Component + Default> WidgetBuilder<U> for Entity
 {
-	fn build(&self, _: &crate::theme::ThemePallete, _: &mut Commands) -> Entity
+	fn build(&self, _: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
 	{
-		*self
+		commands.entity(*self).insert(U::default()).id()
 	}
 }
 

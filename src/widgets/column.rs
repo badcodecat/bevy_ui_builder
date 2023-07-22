@@ -6,27 +6,28 @@ use super::*;
 
 use super::Container;
 
-pub struct Column
+pub struct Column<U>
+	where U: Component + Default
 {
-	pub container: Container,
+	pub container: Container<U>,
 }
 
-impl Column
+impl<U: Component + Default> Column<U>
 {
 	pub fn new() -> Self
 	{
 		Self
 		{
 			container: Container::new()
-				.with_direction(FlexDirection::Column),
+				.with_direction(FlexDirection::Column)
 		}
 	}
 
-	pub fn push(mut self, child: impl Into<Box<dyn super::WidgetBuilder>>) -> Self
+	pub fn push(mut self, child: impl Into<Box<dyn super::WidgetBuilder<U>>>) -> Self
 		{ self.container = self.container.push(child); self }
 }
 
-impl super::Widget for Column
+impl<U: Component + Default> super::Widget for Column<U>
 {
 	fn with_colour(mut self, colour: Color) -> Self
 		{ self.container = self.container.with_colour(colour); self }
@@ -42,7 +43,7 @@ impl super::Widget for Column
 		{ self.container = self.container.with_fill_portion(fill_portion); self }
 }
 
-impl super::WidgetBuilder for Column
+impl<U: Component + Default> super::WidgetBuilder<U> for Column<U>
 {
 	fn build(&self, theme: &ThemePallete, commands: &mut Commands) -> Entity
 	{
@@ -50,9 +51,9 @@ impl super::WidgetBuilder for Column
 	}
 }
 
-impl Into<Box<dyn super::WidgetBuilder>> for Column
+impl<U: Component + Default> Into<Box<dyn super::WidgetBuilder<U>>> for Column<U>
 {
-	fn into(self) -> Box<dyn super::WidgetBuilder>
+	fn into(self) -> Box<dyn super::WidgetBuilder<U>>
 	{
 		Box::new(self)
 	}
