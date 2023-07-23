@@ -153,6 +153,8 @@ mod tests
 		let plugin = UIBuilderPlugin::<TestUI, _>::new(TestApplicationState::Startup)
 			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
+		UIStylePlugin.build(&mut app);
+		app.add_event::<bevy::window::WindowResized>(); // This is required for the resize_text_on_window_resize system to run.
 		app.update();
 		let test_resource = app.world.get_resource::<TestResource>().expect("TestResource not inserted");
 		assert_eq!(test_resource.0, MAGIC_NUMBER);
