@@ -5,10 +5,44 @@ pub mod prelude;
 pub mod widgets;
 pub mod theme;
 
+pub struct UIStylePlugin;
+
+impl Plugin for UIStylePlugin
+{
+	fn build(&self, app: &mut App)
+	{
+		// fn needs_initialization() -> impl Condition<()>
+		// {
+		// 	IntoSystem::into_system
+		// 	(
+		// 		|mut commands: Commands, mut entity: Query<(Entity, &NeedsInitialization)>|
+		// 		{
+		// 			let result = entity.iter().any(|(_, needs_initialization)| needs_initialization.0);
+		// 			for (entity, needs_initialization) in entity.iter_mut()
+		// 			{
+		// 				if needs_initialization.0
+		// 				{
+		// 					commands.entity(entity).remove::<NeedsInitialization>();
+		// 				}
+		// 			}
+		// 			if result
+		// 				{ println!("Needs initialization."); }
+		// 			result
+		// 		}
+		// 	)
+		// }
+		app
+			.add_event::<widgets::label::TextResizeEvent>()
+			.add_systems(Update, widgets::label::resize_text)
+			.add_systems(Update, widgets::label::resize_text_on_window_resize)
+			;
+	}
+}
+
 
 pub struct UIBuilderPlugin<D: Component, S: States>
 {
-	pub theme: theme::ThemePallete,
+	pub theme: theme::ThemeData,
 	pub builders: HashMap<TypeId, BoxedSystem>,
 	pub updaters: HashMap<TypeId, Vec<BoxedSystem>>,
 	pub state: S,
@@ -21,7 +55,7 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 	{
 		let result = Self
 		{
-			theme: theme::ThemePallete::default(),
+			theme: theme::ThemeData::default(),
 			builders: Default::default(),
 			updaters: Default::default(),
 			state: state,
@@ -30,7 +64,7 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 		return result;
 	}
 
-	pub fn with_theme(mut self, theme: theme::ThemePallete) -> Self
+	pub fn with_theme(mut self, theme: theme::ThemeData) -> Self
 	{
 		self.theme = theme;
 		self
@@ -83,6 +117,7 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder)
+			.add_systems(OnEnter(self.state.clone()), | mut resize_writer: ResMut<Events<widgets::TextResizeEvent>> | resize_writer.send(widgets::TextResizeEvent))
 			.add_systems(OnExit(self.state.clone()), Self::destroy_ui_on_exit)
 			.insert_resource(theme::CurrentTheme::<D>(self.theme.clone(), PhantomData))
 			;

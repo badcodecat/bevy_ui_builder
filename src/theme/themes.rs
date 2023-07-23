@@ -1,10 +1,10 @@
 // File Containing default themes
 use once_cell::sync::Lazy;
 use super::*;
-pub static DARK: Lazy<ThemePallete> = Lazy::new
+pub static DARK: Lazy<ThemeData> = Lazy::new
 (
 	||
-	ThemePallete
+	ThemeData
 	{
 		background: Color::BLACK,
 		on_background: Color::WHITE,
@@ -28,14 +28,16 @@ pub static DARK: Lazy<ThemePallete> = Lazy::new
 		disabled_foreground: Color::WHITE,
 
 		destructive: Color::RED.darken(0.33),
-		destructive_foreground: Color::WHITE
+		destructive_foreground: Color::WHITE,
+
+		default_font: None
 	}
 );
 
-pub static LIGHT: Lazy<ThemePallete> = Lazy::new
+pub static LIGHT: Lazy<ThemeData> = Lazy::new
 (
 	||
-	ThemePallete
+	ThemeData
 	{
 		background: Color::WHITE,
 		on_background: Color::BLACK,
@@ -59,12 +61,14 @@ pub static LIGHT: Lazy<ThemePallete> = Lazy::new
 		disabled_foreground: Color::BLACK,
 
 		destructive: Color::RED.lighten(0.33),
-		destructive_foreground: Color::BLACK
+		destructive_foreground: Color::BLACK,
+
+		default_font: None
 	}
 );
 
 
-impl Default for ThemePallete
+impl Default for ThemeData
 {
 	fn default() -> Self
 	{

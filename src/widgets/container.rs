@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::WidgetBuilder;
+use crate::theme::{Theme, ThemeApplicator};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
 pub struct Container<U>
@@ -8,6 +9,8 @@ pub struct Container<U>
 {
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	pub node_bundle: NodeBundle,
+	pub custom_colour: Option<Color>,
+	pub theme: Theme,
 }
 
 impl<U: Component + Default> Container<U>
@@ -29,6 +32,8 @@ impl<U: Component + Default> Container<U>
 				},
 				..Default::default()
 			},
+			theme: Theme::Auto,
+			custom_colour: None,
 		}
 	}
 
@@ -44,13 +49,28 @@ impl<U: Component + Default> Container<U>
 		self.node_bundle.style.height = height;
 		self
 	}
+
+}
+impl<U: Component + Default> ThemeApplicator for Container<U>
+{
+	fn resolve_theme(&mut self, parent_theme: Theme)
+	{
+		if self.theme != Theme::Auto
+			{ return; }
+		// Since this is just a container, we don't need to do anything.
+		self.theme = parent_theme;
+	}
+	fn apply_theme(&mut self, theme: Theme, theme_data: &crate::theme::ThemeData)
+	{
+		self.node_bundle.background_color = self.custom_colour.unwrap_or(theme.get_background_container(theme_data)).into();
+	}
 }
 
 impl<U: Component + Default> super::Widget for Container<U>
 {
 	fn with_colour(mut self, colour: Color) -> Self
 	{
-		self.node_bundle.background_color = colour.into();
+		self.custom_colour = Some(colour);
 		self
 	}
 
@@ -85,14 +105,24 @@ impl<U: Component + Default> super::Widget for Container<U>
 		self
 	}
 
+	fn with_theme(mut self, theme: Theme) -> Self
+	{
+		self.theme = theme;
+		self
+	}
+
 }
 
 impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
-	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
+		// Apply theming.
+		self.resolve_theme(parent_theme);
+		self.apply_theme(self.theme, theme);
+
 		let root = commands.spawn(self.node_bundle.clone()).id(); // TODO: See if we can avoid cloning the node bundle.
-		let children: Vec<Entity> = self.children.iter().map(|child| child.build(theme, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, self.theme, commands)).collect();
 		commands.entity(root)
 			.insert(U::default())
 			.push_children(&children);

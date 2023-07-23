@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::theme::ThemePallete;
+use crate::theme::{ThemeData, ThemeApplicator};
 
 use super::*;
 
@@ -41,13 +41,19 @@ impl<U: Component + Default> super::Widget for Column<U>
 		{ self.container = self.container.with_align_content(align_content); self }
 	fn with_fill_portion(mut self, fill_portion: f32) -> Self
 		{ self.container = self.container.with_fill_portion(fill_portion); self }
+	fn with_theme(mut self, theme: Theme) -> Self
+		{ self.container = self.container.with_theme(theme); self }
 }
 
 impl<U: Component + Default> super::WidgetBuilder<U> for Column<U>
 {
-	fn build(&self, theme: &ThemePallete, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		self.container.build(theme, commands)
+		// Apply theming.
+		self.container.resolve_theme(parent_theme);
+		self.container.apply_theme(self.container.theme, theme_data);
+
+		self.container.build(theme_data, self.container.theme, commands)
 	}
 }
 

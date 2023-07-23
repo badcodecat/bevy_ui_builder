@@ -17,15 +17,33 @@ pub use column::*;
 pub mod row;
 pub use row::*;
 
+pub enum TextSize
+{
+	Custom(f32),
+	Body,
+	SubHeading,
+	Heading,
+}
+
+pub const BASE_TEXT_SIZE: f32 = 16f32;
+
+pub mod label;
+pub use label::*;
+
+pub mod button;
+pub use button::*;
+
+use crate::theme::Theme;
+
 pub trait WidgetBuilder<U>
 	where U: Component + Default
 {
-	fn build(&self, theme: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity;
+	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity;
 }
 
 impl<U: Component + Default> WidgetBuilder<U> for Entity
 {
-	fn build(&self, _: &crate::theme::ThemePallete, commands: &mut Commands) -> Entity
+	fn build(&mut self, _: &crate::theme::ThemeData, _parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
 		commands.entity(*self).insert(U::default()).id()
 	}
@@ -40,4 +58,5 @@ pub trait Widget
 	fn with_align_self(self, align_self: AlignSelf) -> Self;
 	fn with_align_content(self, align_content: AlignContent) -> Self;
 	fn with_fill_portion(self, fill_portion: f32) -> Self;
+	fn with_theme(self, theme: Theme) -> Self;
 }
