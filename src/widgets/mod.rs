@@ -33,6 +33,9 @@ pub use label::*;
 pub mod base_button;
 // Don't pub use button, users probablt want TextButton or ImageButton instead.
 
+pub mod text_button;
+pub use text_button::*;
+
 use crate::theme::Theme;
 
 pub trait WidgetBuilder<U>

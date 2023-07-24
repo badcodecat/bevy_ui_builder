@@ -19,7 +19,6 @@ pub fn style_button_on_hover<U: Component + Default>
 	{
 		let current_theme = current_theme.0;
 		let current_background_colour = current_theme.get_background(&theme_data);
-		println!("Interaction: {:?}", *interaction);
 		match *interaction
 		{
 			Interaction::Hovered => *background_colour = current_background_colour.lighten(0.1).into(),
