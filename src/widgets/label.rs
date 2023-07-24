@@ -131,7 +131,7 @@ impl<U: Component + Default> Widget for TextLabel<U>
 
 impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 {
-	fn apply_theme(&mut self, theme: Theme, theme_data: &ThemeData)
+	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
 		// Apply theme's font.
 		if let Some(font) = &theme_data.default_font
@@ -144,11 +144,11 @@ impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 		// Apply theme's text colour.
 		for section in self.label.text.sections.iter_mut()
 		{
-			section.style.color = theme.get_foreground_container(theme_data).into();
+			section.style.color = parent_theme.get_foreground_container(theme_data).into();
 		}
 
 		// Apply theme colour.
-		self.container.apply_theme(theme, theme_data);
+		self.container.apply_theme(parent_theme, theme_data);
 	}
 }
 
@@ -184,7 +184,8 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		self.apply_theme(self.theme, theme_data);
+		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
+		self.apply_theme(parent_theme, theme_data);
 
 		// Apply font size.
 		let font_size = self.fixed_text_size.unwrap_or(BASE_TEXT_SIZE);
@@ -193,7 +194,6 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 			section.style.font_size = font_size;
 		}
 
-		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
 		let container = self.container.build(theme_data, parent_theme, commands);
 
 		let container = commands.entity(container).insert(AutoSizedText).id();

@@ -30,7 +30,7 @@ pub const BASE_TEXT_SIZE: f32 = 16f32;
 pub mod label;
 pub use label::*;
 
-pub mod button;
+pub mod base_button;
 // Don't pub use button, users probablt want TextButton or ImageButton instead.
 
 use crate::theme::Theme;

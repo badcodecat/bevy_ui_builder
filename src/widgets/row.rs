@@ -49,10 +49,11 @@ impl<U: Component + Default> super::WidgetBuilder<U> for Row<U>
 {
 	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
+		let parent_theme = if parent_theme == Theme::Auto { Theme::Background } else { parent_theme };
 		// Apply theming.
-		self.container.apply_theme(self.container.theme, theme_data);
-
 		let parent_theme = if self.container.theme == Theme::Auto { parent_theme } else { self.container.theme };
+		self.container.apply_theme(parent_theme, theme_data);
+
 		self.container.build(theme_data, parent_theme, commands)
 	}
 }

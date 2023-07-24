@@ -109,6 +109,7 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 {
 	fn build(&self, app: &mut App)
 	{
+		println!("Auto theme: {:?}", dark_light::detect());
 		use std::any::Any;
 		let root_component_id = D::default().type_id();
 		// Unsafe cast to &mut self

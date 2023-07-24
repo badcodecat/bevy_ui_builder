@@ -33,10 +33,15 @@ fn build_root(mut commands: Commands, theme: Res<CurrentTheme<MyUI>>)
 		.with_fill_portion(3f32);
 	let title = bevy_ui_builder::widgets::TextLabel::<MyUI>::new("My Awesome Game")
 		;
-	let space = bevy_ui_builder::widgets::create_space(4f32);
+	let space = bevy_ui_builder::widgets::create_space(1f32);
+	let play_button = bevy_ui_builder::widgets::base_button::BaseButton::<MyUI>::new()
+		;
 	let column = column
 		.push(title)
 		.push(space)
+		.push(play_button)
+		.push(bevy_ui_builder::widgets::create_space(3f32))
+
 		;
 	bevy_ui_builder::widgets::Row::new()
 		.push(bevy_ui_builder::widgets::create_space(1f32))

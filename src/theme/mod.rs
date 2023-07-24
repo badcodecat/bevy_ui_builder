@@ -23,6 +23,18 @@ pub trait ThemeApplicator
 }
 impl Theme
 {
+	pub fn get_next_layer(&self) -> Theme
+	{
+		match self
+		{
+			Theme::Background => Theme::Primary,
+			Theme::Primary => Theme::Secondary,
+			Theme::Secondary => Theme::Tertiary,
+			Theme::Tertiary => Theme::Primary, // Loop back to primary
+
+			_ => panic!("Cannot get next layer for {:?} theme", self)
+		}
+	}
 	pub fn get_background(&self, theme: &ThemeData) -> Color
 	{
 		match self

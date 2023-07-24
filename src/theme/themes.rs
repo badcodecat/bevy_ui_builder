@@ -1,13 +1,14 @@
 // File Containing default themes
 use once_cell::sync::Lazy;
 use super::*;
-pub static DARK: Lazy<ThemeData> = Lazy::new
+// TODO: Theme was AI generated, needs manual review
+pub static LIGHT: Lazy<ThemeData> = Lazy::new
 (
 	||
 	ThemeData
 	{
-		background: Color::BLACK,
-		on_background: Color::WHITE,
+		background: Color::WHITE,
+		on_background: Color::BLACK,
 
 		primary: colours::RAISIN_BLACK.lighten(0.75),
 		primary_foreground: *colours::RAISIN_BLACK,
@@ -34,34 +35,34 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 	}
 );
 
-pub static LIGHT: Lazy<ThemeData> = Lazy::new
+pub static DARK: Lazy<ThemeData> = Lazy::new
 (
 	||
 	ThemeData
 	{
-		background: Color::WHITE,
-		on_background: Color::BLACK,
+		background: Color::BLACK,
+		on_background: Color::WHITE,
 
-		primary: colours::RAISIN_BLACK.darken(0.75),
-		primary_foreground: *colours::RAISIN_BLACK,
-		primary_container: colours::RAISIN_BLACK.darken(0.33),
-		primary_container_foreground: colours::RAISIN_BLACK.darken(0.9),
+		primary: *colours::RAISIN_BLACK,
+		primary_foreground: colours::RAISIN_BLACK.lighten(0.75),
+		primary_container: colours::RAISIN_BLACK.lighten(0.33),
+		primary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
 
-		secondary: colours::ENGLISH_VIOLET.darken(0.75),
-		secondary_foreground: *colours::ENGLISH_VIOLET,
-		secondary_container: colours::ENGLISH_VIOLET.darken(0.33),
-		secondary_container_foreground: colours::ENGLISH_VIOLET.darken(0.9),
+		secondary: colours::ENGLISH_VIOLET.darken(0.33),
+		secondary_foreground: colours::ENGLISH_VIOLET.lighten(0.75),
+		secondary_container: *colours::ENGLISH_VIOLET,
+		secondary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
 
-		tertiary: colours::WALNUT_BROWN.darken(0.75),
-		tertiary_foreground: *colours::WALNUT_BROWN,
-		tertiary_container: colours::WALNUT_BROWN.darken(0.20),
-		tertiary_container_foreground: colours::WALNUT_BROWN.darken(0.9),
+		tertiary: colours::WALNUT_BROWN.darken(0.33),
+		tertiary_foreground: colours::WALNUT_BROWN.lighten(0.75),
+		tertiary_container: *colours::WALNUT_BROWN,
+		tertiary_container_foreground: colours::WALNUT_BROWN.lighten(0.9),
 
-		disabled: Color::GRAY.lighten(0.33),
-		disabled_foreground: Color::BLACK,
+		disabled: Color::GRAY.darken(0.33),
+		disabled_foreground: Color::WHITE,
 
-		destructive: Color::RED.lighten(0.33),
-		destructive_foreground: Color::BLACK,
+		destructive: Color::RED.darken(0.33),
+		destructive_foreground: Color::WHITE,
 
 		default_font: None
 	}
