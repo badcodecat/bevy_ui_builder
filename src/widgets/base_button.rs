@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use bevy::prelude::*;
 
 use super::*;
@@ -12,7 +10,7 @@ pub struct AutoStyledButton;
 pub fn style_button_on_hover<U: Component + Default>
 
 (
-	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Interaction), With<AutoStyledButton>>,
+	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Interaction), (With<AutoStyledButton>, Changed<Interaction>)>,
 	theme_data: Res<CurrentThemeData<U>>,
 )
 {
@@ -121,13 +119,13 @@ impl<U: Component + Default> ThemeApplicator for BaseButton<U>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
-		let theme = match self.theme
+		self.theme = match self.theme
 		{
 			Theme::Background | Theme::Auto => parent_theme.get_next_layer(),
 			_ => self.theme,
 		};
 
-		self.button_bundle.background_color = theme.get_background(theme_data).into();
+		self.button_bundle.background_color = self.theme.get_background(theme_data).into();
 	}
 }
 
@@ -144,8 +142,8 @@ impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
 
 		commands.spawn(self.button_bundle.clone())
 			.insert(U::default())
-			.insert(CurrentTheme(parent_theme, PhantomData::<U>))
 			.insert(AutoStyledButton)
+			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
 			.push_children(&children)
 			.id()
 	}

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::WidgetBuilder;
-use crate::theme::{Theme, ThemeApplicator};
+use crate::theme::{Theme, ThemeApplicator, CurrentTheme};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
 pub struct Container<U>
@@ -129,12 +129,13 @@ impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
 		self.apply_theme(parent_theme, theme);
 
-		let root = commands.spawn(self.node_bundle.clone()).id(); // TODO: See if we can avoid cloning the node bundle.
+
 		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, parent_theme, commands)).collect();
-		commands.entity(root)
+		commands.spawn(self.node_bundle.clone()) // TODO: See if we can avoid cloning the node bundle.
 			.insert(U::default())
-			.push_children(&children);
-		root
+			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
+			.push_children(&children)
+			.id()
 	}
 }
 
