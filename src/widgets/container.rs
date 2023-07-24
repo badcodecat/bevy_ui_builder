@@ -9,7 +9,6 @@ pub struct Container<U>
 {
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	pub node_bundle: NodeBundle,
-	pub custom_colour: Option<Color>,
 	pub theme: Theme,
 }
 
@@ -30,10 +29,10 @@ impl<U: Component + Default> Container<U>
 					align_items: AlignItems::Center,
 					..Default::default()
 				},
+				focus_policy: bevy::ui::FocusPolicy::Pass,
 				..Default::default()
 			},
 			theme: Theme::Auto,
-			custom_colour: None,
 		}
 	}
 
@@ -55,9 +54,9 @@ impl<U: Component + Default> Container<U>
 
 impl<U: Component + Default> super::Widget for Container<U>
 {
-	fn with_colour(mut self, colour: Color) -> Self
+	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
-		self.custom_colour = Some(colour);
+		self.theme = Theme::Custom(background, foreground);
 		self
 	}
 
@@ -109,7 +108,7 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 		{
 			if parent_theme == Theme::Background
 			{
-				self.node_bundle.background_color = self.custom_colour.unwrap_or(self.theme.get_background_container(theme_data)).into();
+				self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
 			}
 			else
 			{
@@ -117,7 +116,7 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 			}
 			return;
 		}
-		self.node_bundle.background_color = self.custom_colour.unwrap_or(self.theme.get_background_container(theme_data)).into();
+		self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
 	}
 }
 

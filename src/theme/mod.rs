@@ -5,13 +5,16 @@ use bevy::prelude::*;
 pub mod themes; // Default themes
 pub use themes::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Theme
 {
 	Background,
 	Primary,
 	Secondary,
 	Tertiary,
+
+	Custom(Color, Color),
+
 	Destructive,
 	#[default]
 	Auto
@@ -32,6 +35,8 @@ impl Theme
 			Theme::Secondary => Theme::Tertiary,
 			Theme::Tertiary => Theme::Primary, // Loop back to primary
 
+			Theme::Custom(_, _) => Theme::Primary, // Guess
+
 			_ => panic!("Cannot get next layer for {:?} theme", self)
 		}
 	}
@@ -44,6 +49,7 @@ impl Theme
 			Theme::Secondary => theme.secondary,
 			Theme::Tertiary => theme.tertiary,
 			Theme::Destructive => theme.destructive,
+			Theme::Custom(background, _) => *background,
 			Theme::Auto => theme.background,
 		}
 	}
@@ -57,6 +63,7 @@ impl Theme
 			Theme::Secondary => theme.secondary_foreground,
 			Theme::Tertiary => theme.tertiary_foreground,
 			Theme::Destructive => theme.destructive_foreground,
+			Theme::Custom(_, foreground) => *foreground,
 			Theme::Auto => theme.on_background,
 		}
 	}
@@ -70,6 +77,7 @@ impl Theme
 			Theme::Secondary => theme.secondary_container,
 			Theme::Tertiary => theme.tertiary_container,
 			Theme::Destructive => theme.destructive,
+			Theme::Custom(background, _) => *background,
 			Theme::Auto => theme.background,
 		}
 	}
@@ -83,6 +91,7 @@ impl Theme
 			Theme::Secondary => theme.secondary_container_foreground,
 			Theme::Tertiary => theme.tertiary_container_foreground,
 			Theme::Destructive => theme.destructive_foreground,
+			Theme::Custom(_, foreground) => *foreground,
 			Theme::Auto => theme.on_background,
 		}
 	}
@@ -120,7 +129,10 @@ pub struct ThemeData
 }
 
 #[derive(Debug, Clone, PartialEq, Resource)]
-pub struct CurrentTheme<W>(pub ThemeData, pub PhantomData<W>);
+pub struct CurrentThemeData<W>(pub ThemeData, pub PhantomData<W>);
+
+#[derive(Debug, Clone, PartialEq, Component)]
+pub struct CurrentTheme<W>(pub Theme, pub PhantomData<W>);
 
 /// See https://m3.material.io/foundations/accessible-design/patterns#c06040d0-f7dd-43d8-af92-384bbb3b0544
 pub const CONTRAST_ACCESIBILITY_RATIO: f64 = 4.5;

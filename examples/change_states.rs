@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ui_builder::{prelude::*, theme::CurrentTheme};
+use bevy_ui_builder::{prelude::*, theme::CurrentThemeData};
 
 #[derive(Default, States, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ApplicationState
@@ -47,15 +47,15 @@ fn change_state_to_startup(mut state: ResMut<NextState<ApplicationState>>, keybo
 	}
 }
 
-fn build_root(mut commands: Commands, theme: Res<CurrentTheme<MyUI>>)
+fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
 	let column = bevy_ui_builder::widgets::Column::<MyUI>::new();
 	let node1 = bevy_ui_builder::widgets::Column::new()
-		.with_colour(Color::RED);
+		.with_colour(Color::RED, Color::NONE);
 	let node2 = bevy_ui_builder::widgets::Column::new()
-		.with_colour(Color::GREEN);
+		.with_colour(Color::GREEN, Color::NONE);
 	let column = column
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(node1)

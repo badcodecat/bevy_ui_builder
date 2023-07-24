@@ -52,7 +52,7 @@ impl<U: Component + Default> WidgetBuilder<U> for Entity
 pub trait Widget
 	where Self: Sized
 {
-	fn with_colour(self, colour: Color) -> Self;
+	fn with_colour(self, background: Color, foreground: Color) -> Self;
 	fn with_direction(self, direction: FlexDirection) -> Self;
 	fn with_wrap(self, wrap: FlexWrap) -> Self;
 	fn with_align_self(self, align_self: AlignSelf) -> Self;

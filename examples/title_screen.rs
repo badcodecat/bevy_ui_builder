@@ -25,7 +25,7 @@ fn main()
 		.run();
 }
 
-fn build_root(mut commands: Commands, theme: Res<CurrentTheme<MyUI>>)
+fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);

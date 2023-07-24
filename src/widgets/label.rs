@@ -113,8 +113,8 @@ impl<U: Component + Default> TextLabel<U>
 
 impl<U: Component + Default> Widget for TextLabel<U>
 {
-	fn with_colour(mut self, colour: Color) -> Self
-		{ self.container = self.container.with_colour(colour); self }
+	fn with_colour(mut self, background: Color, foreground: Color) -> Self
+		{ self.container = self.container.with_colour(background, foreground); self }
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 		{ self.container = self.container.with_direction(direction); self }
 	fn with_wrap(mut self, wrap: FlexWrap) -> Self

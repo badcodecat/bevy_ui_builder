@@ -1,14 +1,40 @@
+use std::marker::PhantomData;
+
 use bevy::prelude::*;
 
 use super::*;
-use crate::theme::{ThemeData, ThemeApplicator};
+use crate::{theme::{ThemeData, ThemeApplicator, CurrentTheme, ShiftColour}, prelude::CurrentThemeData};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Component)]
+/// Indicates that this button should have effects applied to it when hovered over or pressed.
+pub struct AutoStyledButton;
+
+pub fn style_button_on_hover<U: Component + Default>
+
+(
+	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Interaction), With<AutoStyledButton>>,
+	theme_data: Res<CurrentThemeData<U>>,
+)
+{
+	let theme_data = &theme_data.0;
+	for (mut background_colour, current_theme, interaction) in button_query.iter_mut()
+	{
+		let current_theme = current_theme.0;
+		let current_background_colour = current_theme.get_background(&theme_data);
+		println!("Interaction: {:?}", *interaction);
+		match *interaction
+		{
+			Interaction::Hovered => *background_colour = current_background_colour.lighten(0.1).into(),
+			Interaction::Pressed => *background_colour = current_background_colour.darken(0.1).into(),
+			Interaction::None => *background_colour = current_background_colour.into(),
+		}
+	}
+}
 
 pub struct BaseButton<U>
 	where U: Component + Default
 {
-	pub container: Container<U>,
 	pub button_bundle: ButtonBundle,
-	pub custom_colour: Option<Color>,
 	pub theme: Theme,
 
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
@@ -20,7 +46,6 @@ impl<U: Component + Default> BaseButton<U>
 	{
 		Self
 		{
-			container: Container::new(),
 			button_bundle: ButtonBundle
 			{
 				style: Style
@@ -33,7 +58,6 @@ impl<U: Component + Default> BaseButton<U>
 				},
 				..Default::default()
 			},
-			custom_colour: None,
 			theme: Theme::Auto,
 
 			children: Vec::new(),
@@ -49,9 +73,9 @@ impl<U: Component + Default> BaseButton<U>
 
 impl<U: Component + Default> super::Widget for BaseButton<U>
 {
-	fn with_colour(mut self, colour: Color) -> Self
+	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
-		self.custom_colour = Some(colour);
+		self.theme = Theme::Custom(background, foreground);
 		self
 	}
 
@@ -103,7 +127,7 @@ impl<U: Component + Default> ThemeApplicator for BaseButton<U>
 			_ => self.theme,
 		};
 
-		self.button_bundle.background_color = self.custom_colour.unwrap_or(theme.get_background(theme_data)).into();
+		self.button_bundle.background_color = theme.get_background(theme_data).into();
 	}
 }
 
@@ -120,6 +144,8 @@ impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
 
 		commands.spawn(self.button_bundle.clone())
 			.insert(U::default())
+			.insert(CurrentTheme(parent_theme, PhantomData::<U>))
+			.insert(AutoStyledButton)
 			.push_children(&children)
 			.id()
 	}
