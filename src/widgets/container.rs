@@ -51,20 +51,7 @@ impl<U: Component + Default> Container<U>
 	}
 
 }
-impl<U: Component + Default> ThemeApplicator for Container<U>
-{
-	fn resolve_theme(&mut self, parent_theme: Theme)
-	{
-		if self.theme != Theme::Auto
-			{ return; }
-		// Since this is just a container, we don't need to do anything.
-		self.theme = parent_theme;
-	}
-	fn apply_theme(&mut self, theme: Theme, theme_data: &crate::theme::ThemeData)
-	{
-		self.node_bundle.background_color = self.custom_colour.unwrap_or(theme.get_background_container(theme_data)).into();
-	}
-}
+
 
 impl<U: Component + Default> super::Widget for Container<U>
 {
@@ -113,16 +100,30 @@ impl<U: Component + Default> super::Widget for Container<U>
 
 }
 
+impl<U: Component + Default> ThemeApplicator for Container<U>
+{
+	fn apply_theme(&mut self, theme: Theme, theme_data: &crate::theme::ThemeData)
+	{
+		// If the theme is not set (auto), then won't draw a background.
+		if theme == Theme::Auto
+		{
+			self.node_bundle.background_color = Color::NONE.into();
+			return;
+		}
+		self.node_bundle.background_color = self.custom_colour.unwrap_or(theme.get_background_container(theme_data)).into();
+	}
+}
+
 impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
 	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
 		// Apply theming.
-		self.resolve_theme(parent_theme);
 		self.apply_theme(self.theme, theme);
 
 		let root = commands.spawn(self.node_bundle.clone()).id(); // TODO: See if we can avoid cloning the node bundle.
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, self.theme, commands)).collect();
+		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, parent_theme, commands)).collect();
 		commands.entity(root)
 			.insert(U::default())
 			.push_children(&children);

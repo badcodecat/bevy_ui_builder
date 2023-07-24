@@ -31,7 +31,7 @@ pub mod label;
 pub use label::*;
 
 pub mod button;
-pub use button::*;
+// Don't pub use button, users probablt want TextButton or ImageButton instead.
 
 use crate::theme::Theme;
 

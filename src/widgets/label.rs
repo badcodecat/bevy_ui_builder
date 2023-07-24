@@ -131,12 +131,6 @@ impl<U: Component + Default> Widget for TextLabel<U>
 
 impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 {
-	fn resolve_theme(&mut self, parent_theme: Theme)
-	{
-		if self.theme != Theme::Auto
-			{ return; }
-		self.theme = parent_theme;
-	}
 	fn apply_theme(&mut self, theme: Theme, theme_data: &ThemeData)
 	{
 		// Apply theme's font.
@@ -190,7 +184,6 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		self.resolve_theme(parent_theme);
 		self.apply_theme(self.theme, theme_data);
 
 		// Apply font size.
@@ -200,7 +193,9 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 			section.style.font_size = font_size;
 		}
 
-		let container = self.container.build(theme_data, self.theme, commands);
+		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
+		let container = self.container.build(theme_data, parent_theme, commands);
+
 		let container = commands.entity(container).insert(AutoSizedText).id();
 		let label = commands
 			.spawn(clone_text_bundle(&self.label))

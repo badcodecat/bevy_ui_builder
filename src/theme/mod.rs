@@ -20,23 +20,6 @@ pub enum Theme
 pub trait ThemeApplicator
 {
 	fn apply_theme(&mut self, theme: Theme, theme_data: &ThemeData);
-	/// Automatically resolve the theme to the next theme in the chain.
-	fn resolve_theme(&mut self, parent_theme: Theme);
-	// {
-	// 	// Check if the theme is not auto, and if it is, return it.
-	// 	if *self != Theme::Auto
-	// 		{ return *self; }
-	// 	match parent_theme
-	// 	{
-	// 		Theme::Background => Theme::Primary,
-	// 		Theme::Primary => Theme::Secondary,
-	// 		Theme::Secondary => Theme::Tertiary,
-	// 		// Roll back to background if we're at the end of the chain.
-	// 		Theme::Tertiary => Theme::Background,
-	// 		// Make destructive keep being destructive.
-	// 		Theme::Destructive => Theme::Destructive,
-	// 		Theme::Auto => Theme::Background,
-	// 	}
 }
 impl Theme
 {
@@ -126,14 +109,6 @@ pub struct ThemeData
 
 #[derive(Debug, Clone, PartialEq, Resource)]
 pub struct CurrentTheme<W>(pub ThemeData, pub PhantomData<W>);
-
-impl<W> CurrentTheme<W>
-{
-	fn as_theme_pallete(&self) -> &ThemeData
-	{
-		&self.0
-	}
-}
 
 /// See https://m3.material.io/foundations/accessible-design/patterns#c06040d0-f7dd-43d8-af92-384bbb3b0544
 pub const CONTRAST_ACCESIBILITY_RATIO: f64 = 4.5;

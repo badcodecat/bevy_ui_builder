@@ -50,10 +50,10 @@ impl<U: Component + Default> super::WidgetBuilder<U> for Column<U>
 	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
 		// Apply theming.
-		self.container.resolve_theme(parent_theme);
 		self.container.apply_theme(self.container.theme, theme_data);
 
-		self.container.build(theme_data, self.container.theme, commands)
+		let parent_theme = if self.container.theme == Theme::Auto { parent_theme } else { self.container.theme };
+		self.container.build(theme_data, parent_theme, commands)
 	}
 }
 
