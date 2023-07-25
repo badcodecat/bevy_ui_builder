@@ -109,13 +109,6 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 {
 	fn apply_theme(&mut self, _parent_theme: Theme, theme_data: &crate::theme::ThemeData)
 	{
-		// // Assume this is the root node if the parent theme is auto.
-		// if self.theme == Theme::Auto && parent_theme == Theme::Auto
-		// {
-		// 	self.node_bundle.background_color = theme_data.base.into();
-		// }
-		// // Don't apply a background if the theme is auto.
-		// else
 		if self.theme == Theme::Auto
 		{
 			self.node_bundle.background_color = Color::NONE.into();
@@ -123,7 +116,6 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 		// Apply the theme's background as it was specified.
 		else
 		{
-			println!("I was here");
 			self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
 		}
 		self.node_bundle.border_color = self.theme.get_background(theme_data).into();
@@ -134,8 +126,6 @@ impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
 	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		// PRint all args
-		println!("Container::build(theme: {:?}, parent_theme: {:?})", self.theme, parent_theme);
 		// Apply theming.
 		if parent_theme == Theme::Auto
 		{

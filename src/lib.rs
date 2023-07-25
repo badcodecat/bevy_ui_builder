@@ -5,6 +5,7 @@ use bevy_ui_navigation::prelude::*;
 pub mod prelude;
 pub mod widgets;
 pub mod theme;
+pub mod test;
 
 pub struct UIAutomationsPlugin;
 
@@ -115,7 +116,6 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 {
 	fn build(&self, app: &mut App)
 	{
-		println!("Auto theme: {:?}", dark_light::detect());
 		use std::any::Any;
 		let root_component_id = D::default().type_id();
 		// Unsafe cast to &mut self
@@ -157,6 +157,7 @@ mod tests
 			Startup,
 		}
 		let mut app = App::new();
+		test::PretendWindowPlugin.build(&mut app); // This is so we don't get unrelated panics
 		app.add_state::<TestApplicationState>();
 		#[derive(Default, Component)]
 		pub struct TestUI;
@@ -171,7 +172,6 @@ mod tests
 			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
 		UIAutomationsPlugin.build(&mut app);
-		app.add_event::<bevy::window::WindowResized>(); // This is required for the resize_text_on_window_resize system to run.
 		app.update();
 		let test_resource = app.world.get_resource::<TestResource>().expect("TestResource not inserted");
 		assert_eq!(test_resource.0, MAGIC_NUMBER);

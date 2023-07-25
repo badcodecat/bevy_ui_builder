@@ -35,7 +35,6 @@ pub fn update_text_sections
 	for (children, text, placeholder) in query.iter_mut()
 	{
 		let mut text_bundle = text_query.get_mut(children[0]).unwrap();
-		println!("Updating text sections");
 		text_bundle.sections[0].value = text.text.clone();
 		if let Some(placeholder) = placeholder
 		{
@@ -48,6 +47,7 @@ pub fn update_text_sections
 	}
 }
 
+// TODO: Support IME
 pub fn handle_text_input
 (
 	mut query: Query<(&mut EditableText, &mut EditCursor, &Focusable, Option<&AllowsNewlines>)>,
