@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::theme::{ThemeData, ThemeApplicator};
+use crate::theme::ThemeData;
 
 use super::*;
 use super::base_button::*;
@@ -18,7 +18,8 @@ impl<U: Component + Default> TextButton<U>
 	{
 		Self
 		{
-			base_button: BaseButton::new(),
+			base_button: BaseButton::new()
+				.with_auto_style(true),
 			label: TextLabel::new(text),
 		}
 	}
@@ -29,6 +30,11 @@ impl<U: Component + Default> Widget for TextButton<U>
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
 		self.base_button = self.base_button.with_colour(background, foreground);
+		self
+	}
+	fn with_border(mut self, border: UiRect) -> Self
+	{
+		self.base_button = self.base_button.with_border(border);
 		self
 	}
 	fn with_direction(mut self, direction: FlexDirection) -> Self
@@ -63,24 +69,10 @@ impl<U: Component + Default> Widget for TextButton<U>
 	}
 }
 
-impl<U: Component + Default> ThemeApplicator for TextButton<U>
-{
-	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
-	{
-		self.base_button.apply_theme(parent_theme, theme_data);
-		self.label.apply_theme(parent_theme, theme_data);
-	}
-}
-
 impl<U: Component + Default> WidgetBuilder<U> for TextButton<U>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		let parent_theme = if parent_theme == Theme::Auto { Theme::Background } else { parent_theme };
-		// Apply theming.
-		let parent_theme = if self.base_button.theme == Theme::Auto { parent_theme } else { self.base_button.theme };
-		self.base_button.apply_theme(parent_theme, theme_data);
-
 		// Build the button.
 		let button_entity = self.base_button.build(theme_data, parent_theme, commands);
 

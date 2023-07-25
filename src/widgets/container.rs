@@ -60,6 +60,12 @@ impl<U: Component + Default> super::Widget for Container<U>
 		self
 	}
 
+	fn with_border(mut self, border: UiRect) -> Self
+	{
+		self.node_bundle.style.border = border;
+		self
+	}
+
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 	{
 		self.node_bundle.style.flex_direction = direction;
@@ -101,36 +107,45 @@ impl<U: Component + Default> super::Widget for Container<U>
 
 impl<U: Component + Default> ThemeApplicator for Container<U>
 {
-	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &crate::theme::ThemeData)
+	fn apply_theme(&mut self, _parent_theme: Theme, theme_data: &crate::theme::ThemeData)
 	{
-		// If the theme is not set (auto), then won't draw a background.
+		// // Assume this is the root node if the parent theme is auto.
+		// if self.theme == Theme::Auto && parent_theme == Theme::Auto
+		// {
+		// 	self.node_bundle.background_color = theme_data.base.into();
+		// }
+		// // Don't apply a background if the theme is auto.
+		// else
 		if self.theme == Theme::Auto
 		{
-			if parent_theme == Theme::Background
-			{
-				self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
-			}
-			else
-			{
-				self.node_bundle.background_color = Color::NONE.into();
-			}
-			return;
+			self.node_bundle.background_color = Color::NONE.into();
 		}
-		self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
+		// Apply the theme's background as it was specified.
+		else
+		{
+			println!("I was here");
+			self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
+		}
+		self.node_bundle.border_color = self.theme.get_background(theme_data).into();
 	}
 }
 
 impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		let parent_theme = if parent_theme == Theme::Auto { Theme::Background } else { parent_theme };
+		// PRint all args
+		println!("Container::build(theme: {:?}, parent_theme: {:?})", self.theme, parent_theme);
 		// Apply theming.
-		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
-		self.apply_theme(parent_theme, theme);
+		if parent_theme == Theme::Auto
+		{
+			self.theme = Theme::Base;
+		}
+		self.apply_theme(parent_theme, theme_data);
 
+		let new_parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
 
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, parent_theme, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_theme, commands)).collect();
 		commands.spawn(self.node_bundle.clone()) // TODO: See if we can avoid cloning the node bundle.
 			.insert(U::default())
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))

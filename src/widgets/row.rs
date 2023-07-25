@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::theme::ThemeApplicator;
-
 use super::*;
 
 use super::Container;
@@ -31,6 +29,8 @@ impl<U: Component + Default> super::Widget for Row<U>
 {
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 		{ self.container = self.container.with_colour(background, foreground); self }
+	fn with_border(mut self, border: UiRect) -> Self
+		{ self.container = self.container.with_border(border); self }
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 		{ self.container = self.container.with_direction(direction); self }
 	fn with_wrap(mut self, wrap: FlexWrap) -> Self
@@ -49,11 +49,6 @@ impl<U: Component + Default> super::WidgetBuilder<U> for Row<U>
 {
 	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		let parent_theme = if parent_theme == Theme::Auto { Theme::Background } else { parent_theme };
-		// Apply theming.
-		let parent_theme = if self.container.theme == Theme::Auto { parent_theme } else { self.container.theme };
-		self.container.apply_theme(parent_theme, theme_data);
-
 		self.container.build(theme_data, parent_theme, commands)
 	}
 }

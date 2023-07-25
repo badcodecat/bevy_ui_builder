@@ -7,8 +7,10 @@ pub static LIGHT: Lazy<ThemeData> = Lazy::new
 	||
 	ThemeData
 	{
-		background: Color::WHITE,
-		on_background: Color::BLACK,
+		base: Color::WHITE.darken(0.33),
+		base_foreground: Color::BLACK,
+		base_container: Color::WHITE,
+		base_container_foreground: Color::BLACK,
 
 		primary: colours::RAISIN_BLACK.lighten(0.75),
 		primary_foreground: *colours::RAISIN_BLACK,
@@ -40,8 +42,10 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 	||
 	ThemeData
 	{
-		background: Color::BLACK,
-		on_background: Color::WHITE,
+		base: Color::BLACK.lighten(0.33),
+		base_foreground: Color::WHITE,
+		base_container: Color::BLACK,
+		base_container_foreground: Color::WHITE,
 
 		primary: *colours::RAISIN_BLACK,
 		primary_foreground: colours::RAISIN_BLACK.lighten(0.75),

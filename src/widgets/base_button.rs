@@ -33,6 +33,7 @@ pub struct BaseButton<U>
 {
 	pub button_bundle: ButtonBundle,
 	pub theme: Theme,
+	pub auto_style: bool,
 
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 }
@@ -56,6 +57,7 @@ impl<U: Component + Default> BaseButton<U>
 				..Default::default()
 			},
 			theme: Theme::Auto,
+			auto_style: false,
 
 			children: Vec::new(),
 		}
@@ -66,6 +68,12 @@ impl<U: Component + Default> BaseButton<U>
 		self.children.push(child.into());
 		self
 	}
+
+	pub fn with_auto_style(mut self, should_auto_style: bool) -> Self
+	{
+		self.auto_style = should_auto_style;
+		self
+	}
 }
 
 impl<U: Component + Default> super::Widget for BaseButton<U>
@@ -73,6 +81,12 @@ impl<U: Component + Default> super::Widget for BaseButton<U>
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
 		self.theme = Theme::Custom(background, foreground);
+		self
+	}
+
+	fn with_border(mut self, border: UiRect) -> Self
+	{
+		self.button_bundle.style.border = border;
 		self
 	}
 
@@ -120,7 +134,7 @@ impl<U: Component + Default> ThemeApplicator for BaseButton<U>
 	{
 		self.theme = match self.theme
 		{
-			Theme::Background | Theme::Auto => parent_theme.get_next_layer(),
+			Theme::Auto => parent_theme.get_next_layer(),
 			_ => self.theme,
 		};
 
@@ -133,18 +147,21 @@ impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
 	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
 		// Apply theming.
-		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
 		self.apply_theme(parent_theme, theme);
 
 		// Build children.
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, parent_theme, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, self.theme, commands)).collect();
 
-		commands.spawn(self.button_bundle.clone())
+		let mut button = commands.spawn(self.button_bundle.clone());
+		button
 			.insert(U::default())
 			.insert(AutoStyledButton)
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
 			.push_children(&children)
-			.id()
+			;
+		if self.auto_style
+			{ button.insert(AutoStyledButton); }
+		button.id()
 	}
 }
 

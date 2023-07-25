@@ -115,6 +115,8 @@ impl<U: Component + Default> Widget for TextLabel<U>
 {
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 		{ self.container = self.container.with_colour(background, foreground); self }
+	fn with_border(mut self, border: UiRect) -> Self
+		{ self.container = self.container.with_border(border); self }
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 		{ self.container = self.container.with_direction(direction); self }
 	fn with_wrap(mut self, wrap: FlexWrap) -> Self
@@ -146,9 +148,6 @@ impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 		{
 			section.style.color = parent_theme.get_foreground_container(theme_data).into();
 		}
-
-		// Apply theme colour.
-		self.container.apply_theme(parent_theme, theme_data);
 	}
 }
 
@@ -184,7 +183,6 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
-		let parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
 		self.apply_theme(parent_theme, theme_data);
 
 		// Apply font size.

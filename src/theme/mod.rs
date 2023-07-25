@@ -8,7 +8,7 @@ pub use themes::*;
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Theme
 {
-	Background,
+	Base,
 	Primary,
 	Secondary,
 	Tertiary,
@@ -30,7 +30,7 @@ impl Theme
 	{
 		match self
 		{
-			Theme::Background => Theme::Primary,
+			Theme::Base => Theme::Primary,
 			Theme::Primary => Theme::Secondary,
 			Theme::Secondary => Theme::Tertiary,
 			Theme::Tertiary => Theme::Primary, // Loop back to primary
@@ -44,13 +44,13 @@ impl Theme
 	{
 		match self
 		{
-			Theme::Background => theme.background,
+			Theme::Base => theme.base,
 			Theme::Primary => theme.primary,
 			Theme::Secondary => theme.secondary,
 			Theme::Tertiary => theme.tertiary,
 			Theme::Destructive => theme.destructive,
 			Theme::Custom(background, _) => *background,
-			Theme::Auto => theme.background,
+			Theme::Auto => theme.base,
 		}
 	}
 
@@ -58,13 +58,13 @@ impl Theme
 	{
 		match self
 		{
-			Theme::Background => theme.on_background,
+			Theme::Base => theme.base_foreground,
 			Theme::Primary => theme.primary_foreground,
 			Theme::Secondary => theme.secondary_foreground,
 			Theme::Tertiary => theme.tertiary_foreground,
 			Theme::Destructive => theme.destructive_foreground,
 			Theme::Custom(_, foreground) => *foreground,
-			Theme::Auto => theme.on_background,
+			Theme::Auto => theme.base_foreground,
 		}
 	}
 
@@ -72,13 +72,13 @@ impl Theme
 	{
 		match self
 		{
-			Theme::Background => theme.background,
+			Theme::Base => theme.base_container,
 			Theme::Primary => theme.primary_container,
 			Theme::Secondary => theme.secondary_container,
 			Theme::Tertiary => theme.tertiary_container,
 			Theme::Destructive => theme.destructive,
 			Theme::Custom(background, _) => *background,
-			Theme::Auto => theme.background,
+			Theme::Auto => theme.base,
 		}
 	}
 
@@ -86,13 +86,13 @@ impl Theme
 	{
 		match self
 		{
-			Theme::Background => theme.on_background,
+			Theme::Base => theme.base_container_foreground,
 			Theme::Primary => theme.primary_container_foreground,
 			Theme::Secondary => theme.secondary_container_foreground,
 			Theme::Tertiary => theme.tertiary_container_foreground,
 			Theme::Destructive => theme.destructive_foreground,
 			Theme::Custom(_, foreground) => *foreground,
-			Theme::Auto => theme.on_background,
+			Theme::Auto => theme.base_foreground,
 		}
 	}
 }
@@ -100,8 +100,10 @@ impl Theme
 #[derive(Debug, Clone, PartialEq)]
 pub struct ThemeData
 {
-	pub background: Color,
-	pub on_background: Color,
+	pub base: Color,
+	pub base_foreground: Color,
+	pub base_container: Color,
+	pub base_container_foreground: Color,
 
 	pub primary: Color,
 	pub primary_foreground: Color,
@@ -170,7 +172,7 @@ impl ThemeData
 	#[allow(dead_code)] // This is used in the tests, and should be used by users implementing their own themes.
 	fn is_accessible(&self)
 	{
-		assert!(is_contrast_accessible(self.background, self.on_background));
+		assert!(is_contrast_accessible(self.base, self.base_foreground));
 		assert!(is_contrast_accessible(self.primary, self.primary_foreground));
 		assert!(is_contrast_accessible(self.primary_container, self.primary_container_foreground));
 		assert!(is_contrast_accessible(self.secondary, self.secondary_foreground));

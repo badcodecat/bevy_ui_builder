@@ -17,18 +17,13 @@ pub use column::*;
 pub mod row;
 pub use row::*;
 
-pub enum TextSize
-{
-	Custom(f32),
-	Body,
-	SubHeading,
-	Heading,
-}
-
 pub const BASE_TEXT_SIZE: f32 = 16f32;
 
 pub mod label;
 pub use label::*;
+
+pub mod text_input;
+pub use text_input::*;
 
 pub mod base_button;
 // Don't pub use button, users probablt want TextButton or ImageButton instead.
@@ -56,6 +51,7 @@ pub trait Widget
 	where Self: Sized
 {
 	fn with_colour(self, background: Color, foreground: Color) -> Self;
+	fn with_border(self, border: UiRect) -> Self;
 	fn with_direction(self, direction: FlexDirection) -> Self;
 	fn with_wrap(self, wrap: FlexWrap) -> Self;
 	fn with_align_self(self, align_self: AlignSelf) -> Self;
