@@ -1,20 +1,46 @@
 use std::{collections::HashMap, any::TypeId, marker::PhantomData};
 use bevy::{ prelude::*, ecs::system::BoxedSystem };
+use bevy_ui_navigation::prelude::*;
 
 pub mod prelude;
 pub mod widgets;
 pub mod theme;
 
-pub struct UIStylePlugin;
+pub struct UIAutomationsPlugin;
 
-impl Plugin for UIStylePlugin
+impl Plugin for UIAutomationsPlugin
 {
 	fn build(&self, app: &mut App)
 	{
 		app
 			.add_event::<widgets::label::TextResizeEvent>()
-			.add_systems(Update, widgets::label::resize_text)
-			.add_systems(Update, widgets::label::resize_text_on_window_resize)
+			.add_systems
+			(
+				Update,
+				(
+					widgets::label::resize_text,
+					widgets::label::resize_text_on_window_resize
+				)
+			)
+			.add_systems(Update, widgets::base_button::send_pressed_on_keyboard)
+			.add_systems
+			(
+				Update,
+				(
+					widgets::text_input::handle_text_input,
+					widgets::text_input::update_text_sections
+				)
+			)
+			.add_plugins(DefaultNavigationPlugins)
+			.insert_resource
+			(
+				bevy_ui_navigation::systems::InputMapping
+				{
+					keyboard_navigation: true,
+					focus_follows_mouse: true,
+					..Default::default()
+				}
+			)
 			;
 	}
 }
@@ -99,7 +125,16 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder)
 			.add_systems(OnEnter(self.state.clone()), | mut resize_writer: ResMut<Events<widgets::TextResizeEvent>> | resize_writer.send(widgets::TextResizeEvent))
-			.add_systems(Update, widgets::base_button::style_button_on_hover::<D>.run_if(in_state(self.state.clone())))
+			.add_systems
+			(
+				Update,
+				(
+					widgets::base_button::style_button_on_focus::<D>,
+					widgets::base_button::style_button_on_pressed::<D>,
+				)
+					.run_if(in_state(self.state.clone()))
+					.after(NavRequestSystem)
+			)
 			.add_systems(OnExit(self.state.clone()), Self::destroy_ui_on_exit)
 			.insert_resource(theme::CurrentThemeData::<D>(self.theme.clone(), PhantomData))
 			;
@@ -135,7 +170,7 @@ mod tests
 		let plugin = UIBuilderPlugin::<TestUI, _>::new(TestApplicationState::Startup)
 			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
-		UIStylePlugin.build(&mut app);
+		UIAutomationsPlugin.build(&mut app);
 		app.add_event::<bevy::window::WindowResized>(); // This is required for the resize_text_on_window_resize system to run.
 		app.update();
 		let test_resource = app.world.get_resource::<TestResource>().expect("TestResource not inserted");

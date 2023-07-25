@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ui_navigation::prelude::*;
 
 use super::*;
 use crate::{theme::{ThemeData, ThemeApplicator, CurrentTheme, ShiftColour}, prelude::CurrentThemeData};
@@ -7,23 +8,62 @@ use crate::{theme::{ThemeData, ThemeApplicator, CurrentTheme, ShiftColour}, prel
 /// Indicates that this button should have effects applied to it when hovered over or pressed.
 pub struct AutoStyledButton;
 
-pub fn style_button_on_hover<U: Component + Default>
+pub fn style_button_on_focus<U: Component + Default>
 
 (
-	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Interaction), (With<AutoStyledButton>, Changed<Interaction>)>,
+	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Focusable), (With<AutoStyledButton>, Changed<Focusable>)>,
 	theme_data: Res<CurrentThemeData<U>>,
 )
 {
 	let theme_data = &theme_data.0;
-	for (mut background_colour, current_theme, interaction) in button_query.iter_mut()
+	for (mut background_colour, current_theme, focus) in button_query.iter_mut()
+	{
+		let current_theme = current_theme.0;
+		let current_background_colour = current_theme.get_background(&theme_data);
+		match focus.state()
+		{
+			FocusState::Focused => *background_colour = current_background_colour.lighten(0.1).into(),
+			FocusState::Active => *background_colour = current_background_colour.lighten(0.25).into(),
+			_ => *background_colour = current_background_colour.into(),
+		}
+	}
+}
+
+pub fn style_button_on_pressed<U: Component + Default>
+
+(
+	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Interaction, &mut Focusable), (With<AutoStyledButton>, Changed<Interaction>)>,
+	theme_data: Res<CurrentThemeData<U>>,
+)
+{
+	let theme_data = &theme_data.0;
+	for (mut background_colour, current_theme, interaction, mut focus) in button_query.iter_mut()
 	{
 		let current_theme = current_theme.0;
 		let current_background_colour = current_theme.get_background(&theme_data);
 		match *interaction
 		{
-			Interaction::Hovered => *background_colour = current_background_colour.lighten(0.1).into(),
 			Interaction::Pressed => *background_colour = current_background_colour.darken(0.1).into(),
-			Interaction::None => *background_colour = current_background_colour.into(),
+			_ => *focus = focus.clone(), // Other interactions are handled by style_button_on_focus, so tell it to update.
+		}
+	}
+}
+
+// !FIXME: The button's colour stays too long when being pressed this way.
+pub fn send_pressed_on_keyboard
+
+(
+	mut button_query: Query<(&Focusable, &mut Interaction)>,
+	keyboard_input: Res<Input<KeyCode>>,
+)
+{
+	for (focus, mut interaction) in button_query.iter_mut()
+	{
+		if focus.state() != FocusState::Focused
+			{ continue; }
+		if keyboard_input.just_pressed(KeyCode::Return)
+		{
+			*interaction = Interaction::Pressed;
 		}
 	}
 }
@@ -157,6 +197,7 @@ impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
 			.insert(U::default())
 			.insert(AutoStyledButton)
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
+			.insert(Focusable::default())
 			.push_children(&children)
 			;
 		if self.auto_style

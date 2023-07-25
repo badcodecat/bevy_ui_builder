@@ -3,4 +3,4 @@ pub use crate::widgets::Widget;
 pub use crate::theme::CurrentThemeData;
 pub use crate::theme::Theme;
 pub use crate::UIBuilderPlugin;
-pub use crate::UIStylePlugin;
+pub use crate::UIAutomationsPlugin;
