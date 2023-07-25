@@ -68,17 +68,18 @@ pub fn send_pressed_on_keyboard
 	}
 }
 
-pub struct BaseButton<U>
-	where U: Component + Default
+pub struct BaseButton<U, M>
+	where U: Component + Default, M: Component + Default
 {
 	pub button_bundle: ButtonBundle,
 	pub theme: Theme,
 	pub auto_style: bool,
 
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
+	phantom: std::marker::PhantomData<M>,
 }
 
-impl<U: Component + Default> BaseButton<U>
+impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -100,6 +101,7 @@ impl<U: Component + Default> BaseButton<U>
 			auto_style: false,
 
 			children: Vec::new(),
+			phantom: std::marker::PhantomData,
 		}
 	}
 
@@ -116,7 +118,7 @@ impl<U: Component + Default> BaseButton<U>
 	}
 }
 
-impl<U: Component + Default> super::Widget for BaseButton<U>
+impl<U: Component + Default, M: Component + Default> super::Widget for BaseButton<U, M>
 {
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
@@ -168,7 +170,7 @@ impl<U: Component + Default> super::Widget for BaseButton<U>
 	}
 }
 
-impl<U: Component + Default> ThemeApplicator for BaseButton<U>
+impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseButton<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
@@ -182,7 +184,7 @@ impl<U: Component + Default> ThemeApplicator for BaseButton<U>
 	}
 }
 
-impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
+impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseButton<U, M>
 {
 	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
@@ -195,6 +197,7 @@ impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
 		let mut button = commands.spawn(self.button_bundle.clone());
 		button
 			.insert(U::default())
+			.insert(M::default())
 			.insert(AutoStyledButton)
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
 			.insert(Focusable::default())
@@ -206,7 +209,7 @@ impl<U: Component + Default> WidgetBuilder<U> for BaseButton<U>
 	}
 }
 
-impl<U: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U>
+impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 // Really a TextInput is just a label with extra steps
 use bevy_ui_navigation::prelude::*;
 
@@ -115,15 +117,15 @@ pub fn handle_text_input
 }
 
 
-pub struct TextInput<U>
-	where U: Component + Default
+pub struct TextInput<U: Component + Default, M: Component + Default>
 {
 	pub label: TextLabel<U>,
 	pub placeholder: Option<String>,
 	pub allows_newlines: bool,
+	phantom: PhantomData<M>,
 }
 
-impl<U: Component + Default> TextInput<U>
+impl<U: Component + Default, M: Component + Default> TextInput<U, M>
 {
 	pub fn new(text: Option<String>) -> Self
 	{
@@ -133,6 +135,7 @@ impl<U: Component + Default> TextInput<U>
 				.with_border(UiRect::all(Val::Percent(3f32))),
 			placeholder: text,
 			allows_newlines: false,
+			phantom: PhantomData,
 		}
 	}
 
@@ -143,7 +146,7 @@ impl<U: Component + Default> TextInput<U>
 	}
 }
 
-impl<U: Component + Default> Widget for TextInput<U>
+impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
 {
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
@@ -187,7 +190,7 @@ impl<U: Component + Default> Widget for TextInput<U>
 	}
 }
 
-impl<U: Component + Default> WidgetBuilder<U> for TextInput<U>
+impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextInput<U, M>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
 	{
@@ -196,16 +199,18 @@ impl<U: Component + Default> WidgetBuilder<U> for TextInput<U>
 		entity
 			.insert(Focusable::default())
 			.insert(EditableText::default())
-			.insert(EditCursor::default());
+			.insert(EditCursor::default())
+			.insert(M::default())
+			;
 		if let Some(placeholder) = &self.placeholder
-			{ entity.insert(PlaceholderText { text: placeholder.clone() }); }
+		{ entity.insert(PlaceholderText { text: placeholder.clone() }); }
 		if self.allows_newlines
-			{ entity.insert(AllowsNewlines); }
+		{ entity.insert(AllowsNewlines); }
 		entity.id()
 	}
 }
 
-impl<U: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U>
+impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

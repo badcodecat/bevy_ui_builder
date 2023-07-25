@@ -136,7 +136,8 @@ impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 		let new_parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
 
 		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_theme, commands)).collect();
-		commands.spawn(self.node_bundle.clone()) // TODO: See if we can avoid cloning the node bundle.
+		let mut this_container = commands.spawn(self.node_bundle.clone()); // TODO: See if we can avoid cloning the node bundle.
+		this_container
 			.insert(U::default())
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
 			.push_children(&children)

@@ -11,6 +11,9 @@ pub enum ApplicationState
 #[derive(Default, Component)]
 pub struct MyUI;
 
+#[derive(Component, Default)]
+pub struct PlayButton;
+
 fn main()
 {
 	App::new()
@@ -34,8 +37,8 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 	let title = bevy_ui_builder::widgets::TextLabel::new("My Awesome Game")
 		;
 	let space = bevy_ui_builder::widgets::create_space(1f32);
-	let play_button = bevy_ui_builder::widgets::TextButton::new("Play");
-	let name_input = bevy_ui_builder::widgets::TextInput::new("Enter your name".to_string().into());
+	let play_button = bevy_ui_builder::widgets::TextButton::<_, PlayButton>::new("Play");
+	let name_input = bevy_ui_builder::widgets::TextInput::<MyUI, MyUI>::new("Enter your name".to_string().into());
 	let column = column
 		.push(title)
 		.push(space)
