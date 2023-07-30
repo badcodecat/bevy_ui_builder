@@ -51,7 +51,8 @@ pub struct UIBuilderPlugin<D: Component, S: States>
 {
 	pub theme: theme::ThemeData,
 	pub builders: HashMap<TypeId, BoxedSystem>,
-	pub updaters: HashMap<TypeId, Vec<BoxedSystem>>,
+	pub change_detectors: HashMap<TypeId, Vec<BoxedSystem>>,
+	// pub update_systems: Vec<BoxedSystem>,
 	pub state: S,
 	_d: std::marker::PhantomData<D>,
 }
@@ -64,7 +65,8 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 		{
 			theme: theme::ThemeData::default(),
 			builders: Default::default(),
-			updaters: Default::default(),
+			change_detectors: Default::default(),
+			// update_systems: Default::default(),
 			state: state,
 			_d: std::marker::PhantomData,
 		};
@@ -95,14 +97,14 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 
 	pub fn update_on<C: Component + Default, M>(mut self, updater: impl IntoSystem<(), (), M>) -> Self
 	{
-
 		use std::any::Any;
 		let updater = Box::new(IntoSystem::<(), (), M>::into_system(updater));
-		let updaters = self.updaters.entry(C::default().type_id()).or_insert_with(|| Vec::new());
+		let updaters = self.change_detectors.entry(C::default().type_id()).or_insert_with(|| Vec::new());
 		updaters.push(updater);
 		self
 	}
-	// This is a system
+
+	/// This is a system, not an actual method.
 	fn destroy_ui_on_exit(mut commands: Commands, mut query: Query<Entity, With<D>>)
 	{
 		for entity in query.iter_mut()
@@ -121,6 +123,12 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		// Unsafe cast to &mut self
 		#[allow(mutable_transmutes)]
 		let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D, S>, &mut UIBuilderPlugin<D, S>>(self) };
+		// #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, SystemSet)]
+		// pub enum BuildSet
+		// {
+		// 	Building,
+		// 	Built,
+		// }
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder)

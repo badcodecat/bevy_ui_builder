@@ -5,6 +5,8 @@ use bevy::prelude::*;
 pub mod themes; // Default themes
 pub use themes::*;
 
+pub mod dimensions;
+
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Theme
 {
@@ -97,7 +99,7 @@ impl Theme
 	}
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct ThemeData
 {
 	pub base: Color,
@@ -128,9 +130,12 @@ pub struct ThemeData
 
 	/// This font will override the default font for all widgets that do not specify a custom font.
 	pub default_font: Option<Handle<Font>>,
+
+	pub default_padding: UiRect,
+	pub default_margin: UiRect,
 }
 
-#[derive(Debug, Clone, PartialEq, Resource)]
+#[derive(Debug, Clone, Resource)]
 pub struct CurrentThemeData<W>(pub ThemeData, pub PhantomData<W>);
 
 #[derive(Debug, Clone, PartialEq, Component)]

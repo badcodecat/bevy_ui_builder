@@ -73,7 +73,11 @@ pub struct BaseButton<U, M>
 {
 	pub button_bundle: ButtonBundle,
 	pub theme: Theme,
+	/// Determines if AutoStyledButton should be added to this button.
 	pub auto_style: bool,
+
+	pub custom_padding: Option<UiRect>,
+	pub custom_margin: Option<UiRect>,
 
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	phantom: std::marker::PhantomData<M>,
@@ -99,6 +103,9 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 			},
 			theme: Theme::Auto,
 			auto_style: false,
+
+			custom_padding: None,
+			custom_margin: None,
 
 			children: Vec::new(),
 			phantom: std::marker::PhantomData,
@@ -157,6 +164,20 @@ impl<U: Component + Default, M: Component + Default> super::Widget for BaseButto
 		self
 	}
 
+	fn with_padding(mut self, padding: UiRect) -> Self
+	{
+		self.custom_padding = Some(padding);
+		self.button_bundle.style.padding = padding;
+		self
+	}
+
+	fn with_margin(mut self, margin: UiRect) -> Self
+	{
+		self.custom_margin = Some(margin);
+		self.button_bundle.style.margin = margin;
+		self
+	}
+
 	fn with_fill_portion(mut self, fill_portion: f32) -> Self
 	{
 		self.button_bundle.style.flex_basis = Val::Percent(fill_portion * 100.0);
@@ -174,6 +195,24 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
+		// Apply padding and margin.
+		if let Some(padding) = self.custom_padding
+		{
+			self.button_bundle.style.padding = padding;
+		}
+		else
+		{
+			self.button_bundle.style.padding = theme_data.default_padding;
+		}
+		if let Some(margin) = self.custom_margin
+		{
+			self.button_bundle.style.margin = margin;
+		}
+		else
+		{
+			self.button_bundle.style.margin = theme_data.default_margin;
+		}
+
 		self.theme = match self.theme
 		{
 			Theme::Auto => parent_theme.get_next_layer(),

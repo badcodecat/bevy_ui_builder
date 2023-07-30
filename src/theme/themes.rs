@@ -12,15 +12,15 @@ pub static LIGHT: Lazy<ThemeData> = Lazy::new
 		base_container: Color::WHITE,
 		base_container_foreground: Color::BLACK,
 
-		primary: colours::RAISIN_BLACK.lighten(0.75),
-		primary_foreground: *colours::RAISIN_BLACK,
-		primary_container: colours::RAISIN_BLACK.lighten(0.33),
-		primary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
+		primary: colours::ENGLISH_VIOLET.lighten(0.75),
+		primary_foreground: *colours::ENGLISH_VIOLET,
+		primary_container: colours::ENGLISH_VIOLET.lighten(0.33),
+		primary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
 
-		secondary: colours::ENGLISH_VIOLET.lighten(0.75),
-		secondary_foreground: *colours::ENGLISH_VIOLET,
-		secondary_container: colours::ENGLISH_VIOLET.lighten(0.33),
-		secondary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
+		secondary: colours::RAISIN_BLACK.lighten(0.75),
+		secondary_foreground: *colours::RAISIN_BLACK,
+		secondary_container: colours::RAISIN_BLACK.lighten(0.33),
+		secondary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
 
 		tertiary: colours::WALNUT_BROWN.lighten(0.75),
 		tertiary_foreground: *colours::WALNUT_BROWN,
@@ -33,7 +33,10 @@ pub static LIGHT: Lazy<ThemeData> = Lazy::new
 		destructive: Color::RED.darken(0.33),
 		destructive_foreground: Color::WHITE,
 
-		default_font: None
+		default_font: None,
+
+		default_margin: super::dimensions::SMALL,
+		default_padding: super::dimensions::SMALL,
 	}
 );
 
@@ -47,15 +50,15 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 		base_container: Color::BLACK,
 		base_container_foreground: Color::WHITE,
 
-		primary: *colours::RAISIN_BLACK,
-		primary_foreground: colours::RAISIN_BLACK.lighten(0.75),
-		primary_container: colours::RAISIN_BLACK.lighten(0.33),
-		primary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
+		primary: colours::ENGLISH_VIOLET.darken(0.33),
+		primary_foreground: colours::ENGLISH_VIOLET.lighten(0.75),
+		primary_container: *colours::ENGLISH_VIOLET,
+		primary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
 
-		secondary: colours::ENGLISH_VIOLET.darken(0.33),
-		secondary_foreground: colours::ENGLISH_VIOLET.lighten(0.75),
-		secondary_container: *colours::ENGLISH_VIOLET,
-		secondary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
+		secondary: *colours::RAISIN_BLACK,
+		secondary_foreground: colours::RAISIN_BLACK.lighten(0.75),
+		secondary_container: colours::RAISIN_BLACK.lighten(0.33),
+		secondary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
 
 		tertiary: colours::WALNUT_BROWN.darken(0.33),
 		tertiary_foreground: colours::WALNUT_BROWN.lighten(0.75),
@@ -68,7 +71,10 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 		destructive: Color::RED.darken(0.33),
 		destructive_foreground: Color::WHITE,
 
-		default_font: None
+		default_font: None,
+
+		default_margin: super::dimensions::SMALL,
+		default_padding: super::dimensions::SMALL,
 	}
 );
 

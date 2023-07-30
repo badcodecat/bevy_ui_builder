@@ -56,6 +56,8 @@ pub trait Widget
 	fn with_wrap(self, wrap: FlexWrap) -> Self;
 	fn with_align_self(self, align_self: AlignSelf) -> Self;
 	fn with_align_content(self, align_content: AlignContent) -> Self;
+	fn with_padding(self, padding: UiRect) -> Self;
 	fn with_fill_portion(self, fill_portion: f32) -> Self;
+	fn with_margin(self, margin: UiRect) -> Self;
 	fn with_theme(self, theme: Theme) -> Self;
 }

@@ -57,6 +57,16 @@ impl<U: Component + Default, M: Component + Default> Widget for TextButton<U, M>
 		self.base_button = self.base_button.with_align_content(align_content);
 		self
 	}
+	fn with_padding(mut self, padding: UiRect) -> Self
+	{
+		self.base_button = self.base_button.with_padding(padding);
+		self
+	}
+	fn with_margin(mut self, margin: UiRect) -> Self
+	{
+		self.base_button = self.base_button.with_margin(margin);
+		self
+	}
 	fn with_fill_portion(mut self, fill_portion: f32) -> Self
 	{
 		self.base_button = self.base_button.with_fill_portion(fill_portion);

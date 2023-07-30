@@ -10,6 +10,8 @@ pub struct Container<U>
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	pub node_bundle: NodeBundle,
 	pub theme: Theme,
+	pub custom_padding: Option<UiRect>,
+	pub custom_margin: Option<UiRect>,
 }
 
 impl<U: Component + Default> Container<U>
@@ -33,6 +35,8 @@ impl<U: Component + Default> Container<U>
 				..Default::default()
 			},
 			theme: Theme::Auto,
+			custom_padding: None,
+			custom_margin: None,
 		}
 	}
 
@@ -91,6 +95,20 @@ impl<U: Component + Default> super::Widget for Container<U>
 		self
 	}
 
+	fn with_padding(mut self, padding: UiRect) -> Self
+	{
+		self.custom_padding = Some(padding);
+		self.node_bundle.style.padding = padding;
+		self
+	}
+
+	fn with_margin(mut self, margin: UiRect) -> Self
+	{
+		self.custom_margin = Some(margin);
+		self.node_bundle.style.margin = margin;
+		self
+	}
+
 	fn with_fill_portion(mut self, fill_portion: f32) -> Self
 	{
 		self.node_bundle.style.flex_basis = Val::Percent(fill_portion * 100.0);
@@ -109,6 +127,16 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 {
 	fn apply_theme(&mut self, _parent_theme: Theme, theme_data: &crate::theme::ThemeData)
 	{
+		// Apply padding & margin.
+		if let Some(padding) = self.custom_padding
+		{
+			self.node_bundle.style.padding = padding;
+		}
+		else
+		{
+			self.node_bundle.style.padding = theme_data.default_padding;
+		}
+		
 		if self.theme == Theme::Auto
 		{
 			self.node_bundle.background_color = Color::NONE.into();

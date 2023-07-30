@@ -1,0 +1,35 @@
+use bevy::prelude::*;
+
+pub mod menu;
+
+#[derive(Default, States, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ApplicationState
+{
+	#[default]
+	Menu,
+	Game
+}
+
+#[derive(Resource)]
+pub struct PlayerName(pub String);
+
+fn main()
+{
+	App::new()
+		.add_plugins(DefaultPlugins)
+		.add_state::<ApplicationState>()
+		.add_plugins(menu::MenuPlugin)
+		// You could use a plugin for this, but this is a simple example.
+		.add_systems
+		(
+			OnEnter(ApplicationState::Game),
+			start_game
+		)
+		.run();
+}
+
+/// Placeholder function for starting the game.
+fn start_game(name: Res<PlayerName>)
+{
+	println!("Starting game with name: {}", name.0);
+}

@@ -39,6 +39,10 @@ impl<U: Component + Default> super::Widget for Column<U>
 		{ self.container = self.container.with_align_self(align_self); self }
 	fn with_align_content(mut self, align_content: AlignContent) -> Self
 		{ self.container = self.container.with_align_content(align_content); self }
+	fn with_padding(mut self, padding: UiRect) -> Self
+		{ self.container = self.container.with_padding(padding); self }
+	fn with_margin(mut self, margin: UiRect) -> Self
+		{ self.container = self.container.with_margin(margin); self }
 	fn with_fill_portion(mut self, fill_portion: f32) -> Self
 		{ self.container = self.container.with_fill_portion(fill_portion); self }
 	fn with_theme(mut self, theme: Theme) -> Self
