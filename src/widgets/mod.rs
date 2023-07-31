@@ -19,8 +19,8 @@ pub use row::*;
 
 pub const BASE_TEXT_SIZE: f32 = 16f32;
 
-pub mod label;
-pub use label::*;
+pub mod text_label;
+pub use text_label::*;
 
 pub mod text_input;
 pub use text_input::*;

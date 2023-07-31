@@ -14,13 +14,13 @@ impl Plugin for UIAutomationsPlugin
 	fn build(&self, app: &mut App)
 	{
 		app
-			.add_event::<widgets::label::TextResizeEvent>()
+			.add_event::<widgets::text_label::TextResizeEvent>()
 			.add_systems
 			(
 				Update,
 				(
-					widgets::label::resize_text,
-					widgets::label::resize_text_on_window_resize
+					widgets::text_label::resize_text,
+					widgets::text_label::resize_text_on_window_resize
 				)
 			)
 			.add_systems(Update, widgets::base_button::send_pressed_on_keyboard)

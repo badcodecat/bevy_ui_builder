@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::theme::ThemeData;
+use crate::theme::{ThemeData, PaintMode};
 
 use super::*;
 use super::base_button::*;
@@ -20,7 +20,8 @@ impl<U: Component + Default, M: Component + Default> TextButton<U, M>
 		{
 			base_button: BaseButton::new()
 				.with_auto_style(true),
-			label: TextLabel::new(text),
+			label: TextLabel::new(text)
+				.use_container_style(PaintMode::Invisible),
 		}
 	}
 }

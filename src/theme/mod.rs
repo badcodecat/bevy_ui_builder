@@ -17,7 +17,6 @@ pub enum Theme
 
 	Custom(Color, Color),
 
-	Destructive,
 	#[default]
 	Auto
 }
@@ -28,20 +27,22 @@ pub trait ThemeApplicator
 }
 impl Theme
 {
-	pub fn get_next_layer(&self) -> Theme
-	{
-		match self
-		{
-			Theme::Base => Theme::Primary,
-			Theme::Primary => Theme::Secondary,
-			Theme::Secondary => Theme::Tertiary,
-			Theme::Tertiary => Theme::Primary, // Loop back to primary
+	// pub fn get_next_layer(&self) -> Theme
+	// {
+	// 	match self
+	// 	{
+	// 		Theme::Base => Theme::Primary,
+	// 		Theme::Primary => Theme::Secondary,
+	// 		Theme::Secondary => Theme::Tertiary,
+	// 		Theme::Tertiary => Theme::Primary, // Loop back to primary
 
-			Theme::Custom(_, _) => Theme::Primary, // Guess
+	// 		Theme::Custom(_, _) => Theme::Primary, // Guess
 
-			_ => panic!("Cannot get next layer for {:?} theme", self)
-		}
-	}
+	// 		Theme::Auto => Theme::Base, // Guess that the parent is the base theme.
+
+	// 		// _ => panic!("Cannot get next layer for {:?} theme", self)
+	// 	}
+	// }
 	pub fn get_background(&self, theme: &ThemeData) -> Color
 	{
 		match self
@@ -50,7 +51,6 @@ impl Theme
 			Theme::Primary => theme.primary,
 			Theme::Secondary => theme.secondary,
 			Theme::Tertiary => theme.tertiary,
-			Theme::Destructive => theme.destructive,
 			Theme::Custom(background, _) => *background,
 			Theme::Auto => theme.base,
 		}
@@ -64,7 +64,6 @@ impl Theme
 			Theme::Primary => theme.primary_foreground,
 			Theme::Secondary => theme.secondary_foreground,
 			Theme::Tertiary => theme.tertiary_foreground,
-			Theme::Destructive => theme.destructive_foreground,
 			Theme::Custom(_, foreground) => *foreground,
 			Theme::Auto => theme.base_foreground,
 		}
@@ -78,9 +77,8 @@ impl Theme
 			Theme::Primary => theme.primary_container,
 			Theme::Secondary => theme.secondary_container,
 			Theme::Tertiary => theme.tertiary_container,
-			Theme::Destructive => theme.destructive,
 			Theme::Custom(background, _) => *background,
-			Theme::Auto => theme.base,
+			Theme::Auto => theme.base_container,
 		}
 	}
 
@@ -92,11 +90,17 @@ impl Theme
 			Theme::Primary => theme.primary_container_foreground,
 			Theme::Secondary => theme.secondary_container_foreground,
 			Theme::Tertiary => theme.tertiary_container_foreground,
-			Theme::Destructive => theme.destructive_foreground,
 			Theme::Custom(_, foreground) => *foreground,
-			Theme::Auto => theme.base_foreground,
+			Theme::Auto => theme.base_container_foreground,
 		}
 	}
+}
+
+pub enum PaintMode
+{
+	Background,
+	BackgroundContainer,
+	Invisible,
 }
 
 #[derive(Debug, Clone)]

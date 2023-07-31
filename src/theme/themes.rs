@@ -1,7 +1,6 @@
 // File Containing default themes
 use once_cell::sync::Lazy;
 use super::*;
-// TODO: Theme was AI generated, needs manual review
 pub static LIGHT: Lazy<ThemeData> = Lazy::new
 (
 	||
@@ -12,17 +11,17 @@ pub static LIGHT: Lazy<ThemeData> = Lazy::new
 		base_container: Color::WHITE,
 		base_container_foreground: Color::BLACK,
 
-		primary: colours::ENGLISH_VIOLET.lighten(0.75),
+		primary: colours::ENGLISH_VIOLET.lighten(0.50),
 		primary_foreground: *colours::ENGLISH_VIOLET,
 		primary_container: colours::ENGLISH_VIOLET.lighten(0.33),
 		primary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
 
-		secondary: colours::RAISIN_BLACK.lighten(0.75),
+		secondary: colours::RAISIN_BLACK.lighten(0.50),
 		secondary_foreground: *colours::RAISIN_BLACK,
 		secondary_container: colours::RAISIN_BLACK.lighten(0.33),
 		secondary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
 
-		tertiary: colours::WALNUT_BROWN.lighten(0.75),
+		tertiary: colours::WALNUT_BROWN.lighten(0.50),
 		tertiary_foreground: *colours::WALNUT_BROWN,
 		tertiary_container: colours::WALNUT_BROWN.lighten(0.20),
 		tertiary_container_foreground: colours::WALNUT_BROWN.lighten(0.9),
@@ -50,7 +49,7 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 		base_container: Color::BLACK,
 		base_container_foreground: Color::WHITE,
 
-		primary: colours::ENGLISH_VIOLET.darken(0.33),
+		primary: colours::ENGLISH_VIOLET.darken(0.20),
 		primary_foreground: colours::ENGLISH_VIOLET.lighten(0.75),
 		primary_container: *colours::ENGLISH_VIOLET,
 		primary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),

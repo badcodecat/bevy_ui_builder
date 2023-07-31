@@ -132,7 +132,8 @@ impl<U: Component + Default, M: Component + Default> TextInput<U, M>
 		Self
 		{
 			label: TextLabel::new(text.clone().unwrap_or_default())
-				.with_border(UiRect::all(Val::Percent(3f32))),
+				.with_border(UiRect::all(Val::Percent(3f32)))
+				,
 			placeholder: text,
 			allows_newlines: false,
 			phantom: PhantomData,

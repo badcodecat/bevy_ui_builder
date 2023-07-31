@@ -97,6 +97,7 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 					height: Val::Percent(100.0),
 					justify_content: JustifyContent::Center,
 					align_items: AlignItems::Center,
+					overflow: Overflow::clip(),
 					..Default::default()
 				},
 				..Default::default()
@@ -213,11 +214,15 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 			self.button_bundle.style.margin = theme_data.default_margin;
 		}
 
+		dbg!(parent_theme);
+		dbg!(self.theme);
+
 		self.theme = match self.theme
 		{
-			Theme::Auto => parent_theme.get_next_layer(),
+			Theme::Auto => parent_theme,
 			_ => self.theme,
 		};
+		dbg!(self.theme);
 
 		self.button_bundle.background_color = self.theme.get_background(theme_data).into();
 	}

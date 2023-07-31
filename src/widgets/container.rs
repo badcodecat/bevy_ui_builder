@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::WidgetBuilder;
-use crate::theme::{Theme, ThemeApplicator, CurrentTheme};
+use crate::theme::{Theme, ThemeApplicator, CurrentTheme, PaintMode};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
 pub struct Container<U>
@@ -12,6 +12,7 @@ pub struct Container<U>
 	pub theme: Theme,
 	pub custom_padding: Option<UiRect>,
 	pub custom_margin: Option<UiRect>,
+	pub container_style: PaintMode
 }
 
 impl<U: Component + Default> Container<U>
@@ -29,6 +30,7 @@ impl<U: Component + Default> Container<U>
 					height: Val::Percent(100.0),
 					justify_content: JustifyContent::Center,
 					align_items: AlignItems::Center,
+					overflow: Overflow::clip(),
 					..Default::default()
 				},
 				focus_policy: bevy::ui::FocusPolicy::Pass,
@@ -37,6 +39,7 @@ impl<U: Component + Default> Container<U>
 			theme: Theme::Auto,
 			custom_padding: None,
 			custom_margin: None,
+			container_style: PaintMode::BackgroundContainer
 		}
 	}
 
@@ -50,6 +53,12 @@ impl<U: Component + Default> Container<U>
 	{
 		self.node_bundle.style.width = width;
 		self.node_bundle.style.height = height;
+		self
+	}
+
+	pub fn use_container_style(mut self, container: PaintMode) -> Self
+	{
+		self.container_style = container;
 		self
 	}
 
@@ -125,7 +134,7 @@ impl<U: Component + Default> super::Widget for Container<U>
 
 impl<U: Component + Default> ThemeApplicator for Container<U>
 {
-	fn apply_theme(&mut self, _parent_theme: Theme, theme_data: &crate::theme::ThemeData)
+	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &crate::theme::ThemeData)
 	{
 		// Apply padding & margin.
 		if let Some(padding) = self.custom_padding
@@ -136,17 +145,30 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 		{
 			self.node_bundle.style.padding = theme_data.default_padding;
 		}
-		
 		if self.theme == Theme::Auto
 		{
-			self.node_bundle.background_color = Color::NONE.into();
+			self.theme = parent_theme;
 		}
-		// Apply the theme's background as it was specified.
-		else
+
+		match self.container_style
 		{
-			self.node_bundle.background_color = self.theme.get_background_container(theme_data).into();
+			PaintMode::Background =>
+				self.node_bundle.background_color = self.theme.get_background(theme_data).into(),
+			PaintMode::BackgroundContainer =>
+				self.node_bundle.background_color = self.theme.get_background_container(theme_data).into(),
+			PaintMode::Invisible =>
+				self.node_bundle.background_color = Color::NONE.into(),
 		}
-		self.node_bundle.border_color = self.theme.get_background(theme_data).into();
+
+		match self.container_style
+		{
+			PaintMode::Background =>
+				self.node_bundle.border_color = self.theme.get_background_container(theme_data).into(),
+			PaintMode::BackgroundContainer =>
+				self.node_bundle.border_color = self.theme.get_background(theme_data).into(),
+			PaintMode::Invisible =>
+				self.node_bundle.border_color = Color::NONE.into(),
+		}
 	}
 }
 

@@ -18,7 +18,7 @@ fn main()
 		(
 			UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Menu)
 				// Change here to see the different themes
-				.with_theme(bevy_ui_builder::theme::themes::DARK.clone())
+				.with_theme(bevy_ui_builder::theme::themes::LIGHT.clone())
 				.register_root_builder(build_root)
 		)
 		.run();
@@ -46,7 +46,6 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		;
 	let column_secondary = column_secondary
 		.push(column_tertiary)
-		.push(build_sample_widgets())
 		;
 	let mut root = root
 		.push(build_sample_widgets())

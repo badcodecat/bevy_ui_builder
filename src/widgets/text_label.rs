@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::*;
+use crate::theme::PaintMode;
 use crate::theme::Theme;
 use crate::theme::ThemeApplicator;
 use crate::theme::ThemeData;
@@ -109,6 +110,12 @@ impl<U: Component + Default> TextLabel<U>
 		self
 	}
 
+	pub fn use_container_style(mut self, container: PaintMode) -> Self
+	{
+		self.container = self.container.use_container_style(container);
+		self
+	}
+
 }
 
 impl<U: Component + Default> Widget for TextLabel<U>
@@ -147,10 +154,33 @@ impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 				section.style.font = font.clone();
 			}
 		}
+
+		if self.theme == Theme::Auto
+		{
+			self.theme = parent_theme;
+		}
+
+		// Apply background colour.
+		match self.container.container_style
+		{
+			PaintMode::Background =>
+				self.label.background_color = self.theme.get_background(theme_data).into(),
+			PaintMode::BackgroundContainer =>
+				self.label.background_color = self.theme.get_background_container(theme_data).into(),
+			PaintMode::Invisible =>
+				self.label.background_color = Color::NONE.into(),
+		}
+
 		// Apply theme's text colour.
 		for section in self.label.text.sections.iter_mut()
 		{
-			section.style.color = parent_theme.get_foreground_container(theme_data).into();
+			match self.container.container_style
+			{
+				PaintMode::BackgroundContainer =>
+					{ section.style.color = self.theme.get_foreground_container(theme_data).into(); }
+				_ =>
+					{ section.style.color = self.theme.get_foreground(theme_data).into(); }
+			}
 		}
 	}
 }
