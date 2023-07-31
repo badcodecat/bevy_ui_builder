@@ -213,17 +213,6 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 		{
 			self.button_bundle.style.margin = theme_data.default_margin;
 		}
-
-		dbg!(parent_theme);
-		dbg!(self.theme);
-
-		self.theme = match self.theme
-		{
-			Theme::Auto => parent_theme,
-			_ => self.theme,
-		};
-		dbg!(self.theme);
-
 		self.button_bundle.background_color = self.theme.get_background(theme_data).into();
 	}
 }
