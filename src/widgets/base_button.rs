@@ -194,7 +194,7 @@ impl<U: Component + Default, M: Component + Default> super::Widget for BaseButto
 
 impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseButton<U, M>
 {
-	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
+	fn apply_theme(&mut self, _parent_theme: Theme, theme_data: &ThemeData)
 	{
 		// Apply padding and margin.
 		if let Some(padding) = self.custom_padding

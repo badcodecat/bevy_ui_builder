@@ -132,7 +132,16 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder)
-			.add_systems(OnEnter(self.state.clone()), | mut resize_writer: ResMut<Events<widgets::TextResizeEvent>> | resize_writer.send(widgets::TextResizeEvent))
+			.add_systems
+			(
+				Update,
+				| mut resize_writer: ResMut<Events<widgets::TextResizeEvent>>, mut once: Local<bool> |
+				{
+					if *once { return; }
+					resize_writer.send(widgets::TextResizeEvent);
+					*once = true;
+				}
+			)
 			.add_systems
 			(
 				Update,
