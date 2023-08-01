@@ -129,18 +129,35 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		// 	Building,
 		// 	Built,
 		// }
+		#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Resource)]
+		pub struct TextResizeLocal<T>(pub u8, pub PhantomData<T>);
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder)
 			.add_systems
 			(
-				Update,
-				| mut resize_writer: ResMut<Events<widgets::TextResizeEvent>>, mut once: Local<bool> |
+				OnEnter(self.state.clone()),
+				| mut commands: Commands|
 				{
-					if *once { return; }
-					resize_writer.send(widgets::TextResizeEvent);
-					*once = true;
+					commands.insert_resource(TextResizeLocal::<D>(0, PhantomData));
 				}
+			)
+			.add_systems
+			(
+				Update,
+				(
+					| mut resize_writer: ResMut<Events<widgets::TextResizeEvent>>, mut commands: Commands, mut resize_local: ResMut<TextResizeLocal<D>>|
+					{
+						// Run 2 times to ensure that the text is resized.
+						if resize_local.0 >= 1
+						{
+							commands.remove_resource::<TextResizeLocal<D>>();
+						}
+						resize_writer.send(widgets::TextResizeEvent);
+						resize_local.0 += 1;
+					}
+				)
+					.run_if(resource_exists::<TextResizeLocal::<D>>())
 			)
 			.add_systems
 			(
