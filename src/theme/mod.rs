@@ -134,9 +134,6 @@ pub struct ThemeData
 
 	/// This font will override the default font for all widgets that do not specify a custom font.
 	pub default_font: Option<Handle<Font>>,
-
-	pub default_padding: UiRect,
-	pub default_margin: UiRect,
 }
 
 #[derive(Debug, Clone, Resource)]

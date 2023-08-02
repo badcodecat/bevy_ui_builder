@@ -201,17 +201,9 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 		{
 			self.button_bundle.style.padding = padding;
 		}
-		else
-		{
-			self.button_bundle.style.padding = theme_data.default_padding;
-		}
 		if let Some(margin) = self.custom_margin
 		{
 			self.button_bundle.style.margin = margin;
-		}
-		else
-		{
-			self.button_bundle.style.margin = theme_data.default_margin;
 		}
 		self.button_bundle.background_color = self.theme.get_background(theme_data).into();
 	}

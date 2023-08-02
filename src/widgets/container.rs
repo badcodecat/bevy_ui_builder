@@ -141,10 +141,7 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 		{
 			self.node_bundle.style.padding = padding;
 		}
-		else
-		{
-			self.node_bundle.style.padding = theme_data.default_padding;
-		}
+
 		if self.theme == Theme::Auto
 		{
 			self.theme = parent_theme;

@@ -33,9 +33,6 @@ pub static LIGHT: Lazy<ThemeData> = Lazy::new
 		destructive_foreground: Color::WHITE,
 
 		default_font: None,
-
-		default_margin: super::dimensions::SMALL,
-		default_padding: super::dimensions::SMALL,
 	}
 );
 
@@ -71,9 +68,6 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 		destructive_foreground: Color::WHITE,
 
 		default_font: None,
-
-		default_margin: super::dimensions::SMALL,
-		default_padding: super::dimensions::SMALL,
 	}
 );
 
