@@ -35,7 +35,8 @@ impl Plugin for UIAutomationsPlugin
 				Update,
 				(
 					widgets::text_input::handle_text_input,
-					widgets::text_input::update_text_sections
+					widgets::text_input::update_text_sections,
+					widgets::checkbox::toggle_checkbox,
 				)
 			)
 			.add_plugins(DefaultNavigationPlugins)

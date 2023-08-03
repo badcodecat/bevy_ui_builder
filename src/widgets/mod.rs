@@ -31,6 +31,9 @@ pub mod base_button;
 pub mod text_button;
 pub use text_button::*;
 
+pub mod checkbox;
+pub use checkbox::*;
+
 use crate::theme::Theme;
 
 // pub fn compute_val(val: Val, parent_size: f32) -> f32
@@ -66,46 +69,34 @@ pub struct AspectRatio(pub f32);
 pub fn ensure_aspect_ratio
 (
 	aspect_ratio_events: EventReader<AspectRatioEvent>,
-	mut set: ParamSet
-	<
-		(
-			Query<(&AspectRatio, &mut Style, &Parent)>,
-			Query<(&Style, &Node, Entity)>
-		)
-	>,
+	mut query: Query<(&AspectRatio, &mut Style, &Node)>,
 	mut text_resize_writer: EventWriter<TextResizeEvent>
 )
 {
 	if aspect_ratio_events.is_empty()
 		{ return; }
-	let parent_entities = set.p0().iter().map(|(_, _, entity)| **entity).collect::<Vec<Entity>>();
-	let parent_datas = set
-		.p1()
-		.iter()
-		.filter(|(_, _, entity)| { parent_entities.contains(&entity) })
-		.map(|(style, node, entity)| (entity, (style.flex_direction, style.padding, node.size())))
-		.collect::<std::collections::HashMap<_, _>>();
-	for (aspect_ratio, mut style, parent) in set.p0().iter_mut()
+	for (AspectRatio(aspect_ratio), mut style, node) in query.iter_mut()
 	{
-		let (flex_direction, parent_padding, parent_size) = parent_datas.get(&(**parent)).unwrap();
-		match flex_direction
+		let size = node.size();
+		use std::cmp::Ordering;
+		match size.x.partial_cmp(&size.y).unwrap()
 		{
-			FlexDirection::Column | FlexDirection::ColumnReverse =>
+			Ordering::Less =>
 			{
-				let horizontal_padding = parent_padding.left.evaluate(parent_size.x).unwrap() + parent_padding.right.evaluate(parent_size.x).unwrap();
-				let base_size = parent_size.x - horizontal_padding;
-				style.width = Val::Px(base_size);
-				style.height = Val::Px(base_size / aspect_ratio.0);
+				style.height = Val::Px(size.x / aspect_ratio);
+				style.width = Val::Px(size.x);
 			},
-			FlexDirection::Row | FlexDirection::RowReverse =>
+			Ordering::Greater =>
 			{
-				let vertical_padding = parent_padding.top.evaluate(parent_size.y).unwrap() + parent_padding.bottom.evaluate(parent_size.y).unwrap();
-				let base_size = parent_size.y - vertical_padding;
-				style.width = Val::Px(base_size * aspect_ratio.0);
-				style.height = Val::Px(base_size);
+				style.width = Val::Px(size.y * aspect_ratio);
+				style.height = Val::Px(size.y);
+			},
+			Ordering::Equal =>
+			{
+				if *aspect_ratio != 1f32
+					{ todo!("Aspect ratio is not 1. This is not supported yet."); }
 			}
 		}
-		println!("new size: {:?}, {:?}", style.width, style.height);
 	}
 	text_resize_writer.send(TextResizeEvent);
 }
