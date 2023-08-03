@@ -12,31 +12,29 @@ pub struct AutoSizedText;
 #[derive(Clone, Copy, Event, PartialEq, Eq, Debug)]
 pub struct TextResizeEvent;
 
-pub fn resize_text_on_window_resize
-(
-	mut window_resized_reader: EventReader<bevy::window::WindowResized>,
-	mut resize_writer: EventWriter<TextResizeEvent>,
-)
-{
-	if window_resized_reader.iter().next().is_none()
-		{ return; }
-	resize_writer.send(TextResizeEvent);
-}
+
 
 pub fn resize_text
 (
-	container_query: Query<(&Children, &Node), With<AutoSizedText>>,
+	container_query: Query<(&Children, &Node, Option<&AspectRatio>), With<AutoSizedText>>,
 	mut text_query: Query<&mut Text>,
-	mut resize_reader: EventReader<TextResizeEvent>,
+	resize_reader: EventReader<TextResizeEvent>,
 	// mut resize_writer: EventWriter<TextResizeEvent>,
 )
 {
-	if resize_reader.iter().next().is_none()
+	if resize_reader.is_empty()
 		{ return; }
-	for (children, node) in container_query.iter()
+	for (children, node, aspect_ratio) in container_query.iter()
 	{
 		let mut text = text_query.get_mut(children[0]).unwrap();
-		let text_size = node.size().y / 2f32;
+		let size = node.size();
+		dbg!(size);
+		let text_divisor = match aspect_ratio
+		{
+			Some(AspectRatio(aspect_ratio)) => 4f32 / aspect_ratio,
+			None => 2.25, // Magic number for a assumed 16:9 aspect ratio.
+		};
+		let text_size = size.y / text_divisor;
 		// if text_size == 0f32
 		// {
 		// 	println!("Text size is 0, skipping.");
@@ -124,6 +122,8 @@ impl<U: Component + Default> Widget for TextLabel<U>
 		{ self.container = self.container.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self
 		{ self.container = self.container.with_border(border); self }
+	fn with_aspect_ratio(mut self, aspect_ratio: f32) -> Self
+		{ self.container = self.container.with_aspect_ratio(aspect_ratio); self }
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 		{ self.container = self.container.with_direction(direction); self }
 	fn with_wrap(mut self, wrap: FlexWrap) -> Self

@@ -29,55 +29,27 @@ impl<U: Component + Default, M: Component + Default> TextButton<U, M>
 impl<U: Component + Default, M: Component + Default> Widget for TextButton<U, M>
 {
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
-	{
-		self.base_button = self.base_button.with_colour(background, foreground);
-		self
-	}
+		{ self.base_button = self.base_button.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self
-	{
-		self.base_button = self.base_button.with_border(border);
-		self
-	}
+		{ self.base_button = self.base_button.with_border(border); self }
+	fn with_aspect_ratio(mut self, aspect_ratio: f32) -> Self
+		{ self.base_button = self.base_button.with_aspect_ratio(aspect_ratio); self }
 	fn with_direction(mut self, direction: FlexDirection) -> Self
-	{
-		self.base_button = self.base_button.with_direction(direction);
-		self
-	}
+		{ self.base_button = self.base_button.with_direction(direction); self }
 	fn with_wrap(mut self, wrap: FlexWrap) -> Self
-	{
-		self.base_button = self.base_button.with_wrap(wrap);
-		self
-	}
+		{ self.base_button = self.base_button.with_wrap(wrap); self }
 	fn with_align_self(mut self, align_self: AlignSelf) -> Self
-	{
-		self.base_button = self.base_button.with_align_self(align_self);
-		self
-	}
+		{ self.base_button = self.base_button.with_align_self(align_self); self }
 	fn with_align_content(mut self, align_content: AlignContent) -> Self
-	{
-		self.base_button = self.base_button.with_align_content(align_content);
-		self
-	}
+		{ self.base_button = self.base_button.with_align_content(align_content); self }
 	fn with_padding(mut self, padding: UiRect) -> Self
-	{
-		self.base_button = self.base_button.with_padding(padding);
-		self
-	}
+		{ self.base_button = self.base_button.with_padding(padding); self }
 	fn with_margin(mut self, margin: UiRect) -> Self
-	{
-		self.base_button = self.base_button.with_margin(margin);
-		self
-	}
+		{ self.base_button = self.base_button.with_margin(margin); self }
 	fn with_fill_portion(mut self, fill_portion: f32) -> Self
-	{
-		self.base_button = self.base_button.with_fill_portion(fill_portion);
-		self
-	}
+		{ self.base_button = self.base_button.with_fill_portion(fill_portion); self }
 	fn with_theme(mut self, theme: Theme) -> Self
-	{
-		self.base_button = self.base_button.with_theme(theme);
-		self
-	}
+		{ self.base_button = self.base_button.with_theme(theme); self }
 }
 
 impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextButton<U, M>

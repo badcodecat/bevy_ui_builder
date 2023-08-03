@@ -159,6 +159,11 @@ impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
 		self.label = self.label.with_border(border);
 		self
 	}
+	fn with_aspect_ratio(mut self, aspect_ratio: f32) -> Self
+	{
+		self.label = self.label.with_aspect_ratio(aspect_ratio);
+		self
+	}
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 	{
 		self.label = self.label.with_direction(direction);

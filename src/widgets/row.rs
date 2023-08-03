@@ -31,6 +31,8 @@ impl<U: Component + Default> super::Widget for Row<U>
 		{ self.container = self.container.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self
 		{ self.container = self.container.with_border(border); self }
+	fn with_aspect_ratio(mut self, aspect_ratio: f32) -> Self
+		{ self.container = self.container.with_aspect_ratio(aspect_ratio); self }
 	fn with_direction(mut self, direction: FlexDirection) -> Self
 		{ self.container = self.container.with_direction(direction); self }
 	fn with_wrap(mut self, wrap: FlexWrap) -> Self

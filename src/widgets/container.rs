@@ -12,6 +12,7 @@ pub struct Container<U>
 	pub theme: Theme,
 	pub custom_padding: Option<UiRect>,
 	pub custom_margin: Option<UiRect>,
+	pub aspect_ratio: Option<f32>,
 	pub container_style: PaintMode
 }
 
@@ -26,6 +27,7 @@ impl<U: Component + Default> Container<U>
 			{
 				style: Style
 				{
+					display: Display::Flex,
 					width: Val::Percent(100.0),
 					height: Val::Percent(100.0),
 					justify_content: JustifyContent::Center,
@@ -39,6 +41,7 @@ impl<U: Component + Default> Container<U>
 			theme: Theme::Auto,
 			custom_padding: None,
 			custom_margin: None,
+			aspect_ratio: None,
 			container_style: PaintMode::BackgroundContainer
 		}
 	}
@@ -76,6 +79,13 @@ impl<U: Component + Default> super::Widget for Container<U>
 	fn with_border(mut self, border: UiRect) -> Self
 	{
 		self.node_bundle.style.border = border;
+		self
+	}
+
+	fn with_aspect_ratio(mut self, aspect_ratio: f32) -> Self
+	{
+		// It's important to remember that bevy's aspect ratio is completely different from what we want.
+		self.aspect_ratio = Some(aspect_ratio);
 		self
 	}
 
@@ -184,6 +194,12 @@ impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 
 		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_theme, commands)).collect();
 		let mut this_container = commands.spawn(self.node_bundle.clone()); // TODO: See if we can avoid cloning the node bundle.
+		
+		if let Some(aspect_ratio) = self.aspect_ratio
+		{
+			this_container.insert(super::AspectRatio(aspect_ratio));
+		}
+
 		this_container
 			.insert(U::default())
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))

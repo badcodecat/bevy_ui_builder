@@ -14,13 +14,19 @@ impl Plugin for UIAutomationsPlugin
 	fn build(&self, app: &mut App)
 	{
 		app
+			.add_event::<widgets::AspectRatioEvent>()
+			.add_systems
+			(
+				Update,
+				widgets::ensure_aspect_ratio,
+			)
 			.add_event::<widgets::text_label::TextResizeEvent>()
 			.add_systems
 			(
 				Update,
 				(
 					widgets::text_label::resize_text,
-					widgets::text_label::resize_text_on_window_resize
+					widgets::resize_on_window_resize,
 				)
 			)
 			.add_systems(Update, widgets::base_button::send_pressed_on_keyboard)
@@ -130,7 +136,7 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		// 	Built,
 		// }
 		#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Resource)]
-		pub struct TextResizeLocal<T>(pub u8, pub PhantomData<T>);
+		pub struct ResizeLocal<T>(pub u8, pub PhantomData<T>);
 		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder)
@@ -139,25 +145,26 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 				OnEnter(self.state.clone()),
 				| mut commands: Commands|
 				{
-					commands.insert_resource(TextResizeLocal::<D>(0, PhantomData));
+					commands.insert_resource(ResizeLocal::<D>(0, PhantomData));
 				}
 			)
 			.add_systems
 			(
 				Update,
 				(
-					| mut resize_writer: ResMut<Events<widgets::TextResizeEvent>>, mut commands: Commands, mut resize_local: ResMut<TextResizeLocal<D>>|
+					| mut aspect_writer: EventWriter<widgets::AspectRatioEvent>, mut resize_writer: ResMut<Events<widgets::TextResizeEvent>>, mut commands: Commands, mut resize_local: ResMut<ResizeLocal<D>>|
 					{
 						// Run 2 times to ensure that the text is resized.
 						if resize_local.0 >= 1
 						{
-							commands.remove_resource::<TextResizeLocal<D>>();
+							commands.remove_resource::<ResizeLocal<D>>();
 						}
+						aspect_writer.send(widgets::AspectRatioEvent);
 						resize_writer.send(widgets::TextResizeEvent);
 						resize_local.0 += 1;
 					}
 				)
-					.run_if(resource_exists::<TextResizeLocal::<D>>())
+					.run_if(resource_exists::<ResizeLocal::<D>>())
 			)
 			.add_systems
 			(

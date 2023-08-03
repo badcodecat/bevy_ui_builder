@@ -79,6 +79,8 @@ pub struct BaseButton<U, M>
 	pub custom_padding: Option<UiRect>,
 	pub custom_margin: Option<UiRect>,
 
+	pub aspect_ratio: Option<f32>,
+
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	phantom: std::marker::PhantomData<M>,
 }
@@ -107,6 +109,8 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 
 			custom_padding: None,
 			custom_margin: None,
+
+			aspect_ratio: None,
 
 			children: Vec::new(),
 			phantom: std::marker::PhantomData,
@@ -137,6 +141,12 @@ impl<U: Component + Default, M: Component + Default> super::Widget for BaseButto
 	fn with_border(mut self, border: UiRect) -> Self
 	{
 		self.button_bundle.style.border = border;
+		self
+	}
+
+	fn with_aspect_ratio(mut self, aspect_ratio: f32) -> Self
+	{
+		self.aspect_ratio = Some(aspect_ratio);
 		self
 	}
 
@@ -220,6 +230,10 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseBu
 		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, self.theme, commands)).collect();
 
 		let mut button = commands.spawn(self.button_bundle.clone());
+		if let Some(aspect_ratio) = self.aspect_ratio
+		{
+			button.insert(AspectRatio(aspect_ratio));
+		}
 		button
 			.insert(U::default())
 			.insert(M::default())
