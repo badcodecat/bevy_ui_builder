@@ -73,6 +73,7 @@ pub struct BaseButton<U, M>
 {
 	pub button_bundle: ButtonBundle,
 	pub theme: Theme,
+	pub paint_mode: PaintMode,
 	/// Determines if AutoStyledButton should be added to this button.
 	pub auto_style: bool,
 
@@ -105,6 +106,7 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 				..Default::default()
 			},
 			theme: Theme::Auto,
+			paint_mode: PaintMode::Background,
 			auto_style: false,
 
 			custom_padding: None,
@@ -132,6 +134,11 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 
 impl<U: Component + Default, M: Component + Default> super::Widget for BaseButton<U, M>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+	{
+		self.paint_mode = paint_mode;
+		self
+	}
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
 		self.theme = Theme::Custom(background, foreground);
@@ -215,7 +222,24 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 		{
 			self.button_bundle.style.margin = margin;
 		}
-		self.button_bundle.background_color = self.theme.get_background(theme_data).into();
+		self.button_bundle.background_color = match self.paint_mode
+		{
+			PaintMode::Background =>
+				self.theme.get_background(theme_data).into(),
+			PaintMode::BackgroundContainer =>
+				self.theme.get_background_container(theme_data).into(),
+			PaintMode::Invisible =>
+				Color::NONE.into(),
+		};
+		self.button_bundle.border_color = match self.paint_mode
+		{
+			PaintMode::Background =>
+				self.theme.get_background_container(theme_data).into(),
+			PaintMode::BackgroundContainer =>
+				self.theme.get_background(theme_data).into(),
+			PaintMode::Invisible =>
+				Color::NONE.into(),
+		};
 	}
 }
 

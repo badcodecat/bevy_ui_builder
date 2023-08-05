@@ -149,6 +149,11 @@ impl<U: Component + Default, M: Component + Default> TextInput<U, M>
 
 impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+	{
+		self.label = self.label.with_paint_mode(paint_mode);
+		self
+	}
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
 		self.label = self.label.with_colour(background, foreground);

@@ -27,6 +27,8 @@ impl<U: Component + Default> Row<U>
 
 impl<U: Component + Default> super::Widget for Row<U>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+		{ self.container = self.container.with_paint_mode(paint_mode); self }
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 		{ self.container = self.container.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self

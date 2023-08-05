@@ -34,7 +34,10 @@ pub use text_button::*;
 pub mod checkbox;
 pub use checkbox::*;
 
-use crate::theme::Theme;
+pub mod dropdown;
+pub use dropdown::*;
+
+use crate::theme::{Theme, PaintMode};
 
 // pub fn compute_val(val: Val, parent_size: f32) -> f32
 // {
@@ -180,6 +183,7 @@ impl<U: Component + Default> WidgetBuilder<U> for Entity
 pub trait Widget
 	where Self: Sized
 {
+	fn with_paint_mode(self, paint_mode: PaintMode) -> Self;
 	fn with_colour(self, background: Color, foreground: Color) -> Self;
 	fn with_border(self, border: UiRect) -> Self;
 	/// Note a few important things:

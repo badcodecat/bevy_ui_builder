@@ -28,7 +28,6 @@ pub fn resize_text
 	{
 		let mut text = text_query.get_mut(children[0]).unwrap();
 		let size = node.size();
-		dbg!(size);
 		let text_divisor = match aspect_ratio
 		{
 			Some(AspectRatio(aspect_ratio)) => 4f32 / aspect_ratio,
@@ -107,17 +106,12 @@ impl<U: Component + Default> TextLabel<U>
 		self.theme = theme;
 		self
 	}
-
-	pub fn use_container_style(mut self, container: PaintMode) -> Self
-	{
-		self.container = self.container.use_container_style(container);
-		self
-	}
-
 }
 
 impl<U: Component + Default> Widget for TextLabel<U>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+		{ self.container = self.container.with_paint_mode(paint_mode); self }
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 		{ self.container = self.container.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self
@@ -161,7 +155,7 @@ impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 		}
 
 		// Apply background colour.
-		match self.container.container_style
+		match self.container.paint_mode
 		{
 			PaintMode::Background =>
 				self.label.background_color = self.theme.get_background(theme_data).into(),
@@ -174,7 +168,7 @@ impl<U: Component + Default> ThemeApplicator for TextLabel<U>
 		// Apply theme's text colour.
 		for section in self.label.text.sections.iter_mut()
 		{
-			match self.container.container_style
+			match self.container.paint_mode
 			{
 				PaintMode::BackgroundContainer =>
 					{ section.style.color = self.theme.get_foreground_container(theme_data).into(); }

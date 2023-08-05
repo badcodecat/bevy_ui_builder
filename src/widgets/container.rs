@@ -13,7 +13,7 @@ pub struct Container<U>
 	pub custom_padding: Option<UiRect>,
 	pub custom_margin: Option<UiRect>,
 	pub aspect_ratio: Option<f32>,
-	pub container_style: PaintMode
+	pub paint_mode: PaintMode
 }
 
 impl<U: Component + Default> Container<U>
@@ -42,7 +42,7 @@ impl<U: Component + Default> Container<U>
 			custom_padding: None,
 			custom_margin: None,
 			aspect_ratio: None,
-			container_style: PaintMode::BackgroundContainer
+			paint_mode: PaintMode::BackgroundContainer
 		}
 	}
 
@@ -58,18 +58,16 @@ impl<U: Component + Default> Container<U>
 		self.node_bundle.style.height = height;
 		self
 	}
-
-	pub fn use_container_style(mut self, container: PaintMode) -> Self
-	{
-		self.container_style = container;
-		self
-	}
-
 }
 
 
 impl<U: Component + Default> super::Widget for Container<U>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+	{
+		self.paint_mode = paint_mode;
+		self
+	}
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 	{
 		self.theme = Theme::Custom(background, foreground);
@@ -157,7 +155,7 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 			self.theme = parent_theme;
 		}
 
-		match self.container_style
+		match self.paint_mode
 		{
 			PaintMode::Background =>
 				self.node_bundle.background_color = self.theme.get_background(theme_data).into(),
@@ -167,7 +165,7 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 				self.node_bundle.background_color = Color::NONE.into(),
 		}
 
-		match self.container_style
+		match self.paint_mode
 		{
 			PaintMode::Background =>
 				self.node_bundle.border_color = self.theme.get_background_container(theme_data).into(),

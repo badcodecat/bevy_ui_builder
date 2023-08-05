@@ -56,6 +56,8 @@ impl<U: Component + Default, M: Component + Default> CheckBox<U, M>
 
 impl<U: Component + Default, M: Component + Default> Widget for CheckBox<U, M>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+		{ self.text_button = self.text_button.with_paint_mode(paint_mode); self }
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 		{ self.text_button = self.text_button.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self

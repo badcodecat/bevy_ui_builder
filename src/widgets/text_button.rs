@@ -21,13 +21,15 @@ impl<U: Component + Default, M: Component + Default> TextButton<U, M>
 			base_button: BaseButton::new()
 				.with_auto_style(true),
 			label: TextLabel::new(text)
-				.use_container_style(PaintMode::Invisible),
+				.with_paint_mode(PaintMode::Invisible)
 		}
 	}
 }
 
 impl<U: Component + Default, M: Component + Default> Widget for TextButton<U, M>
 {
+	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
+		{ self.base_button = self.base_button.with_paint_mode(paint_mode); self }
 	fn with_colour(mut self, background: Color, foreground: Color) -> Self
 		{ self.base_button = self.base_button.with_colour(background, foreground); self }
 	fn with_border(mut self, border: UiRect) -> Self
