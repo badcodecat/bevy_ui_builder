@@ -1,5 +1,6 @@
 pub use crate::widgets::WidgetBuilder;
 pub use crate::widgets::Widget;
+pub use crate::widgets::ParentData;
 
 // Needed to query for widget contents:
 pub use crate::widgets::text_input::EditableText;

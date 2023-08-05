@@ -208,9 +208,9 @@ impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
 
 impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextInput<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		let entity = self.label.build(theme_data, parent_theme, commands);
+		let entity = self.label.build(theme_data, parent_data, commands);
 		let mut entity = commands.entity(entity);
 		entity
 			.insert(Focusable::default())

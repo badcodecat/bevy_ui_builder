@@ -54,13 +54,13 @@ impl<U: Component + Default, M: Component + Default> Widget for TextButton<U, M>
 
 impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextButton<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Build the button.
-		let button_entity = self.base_button.build(theme_data, parent_theme, commands);
+		let button_entity = self.base_button.build(theme_data, parent_data, commands);
 
 		// Build the label.
-		let label_entity = self.label.build(theme_data, self.base_button.theme, commands);
+		let label_entity = self.label.build(theme_data, parent_data, commands);
 
 		// Add the label to the button.
 		commands.entity(button_entity).push_children(&[label_entity]);

@@ -53,9 +53,9 @@ impl<U: Component + Default> super::Widget for Row<U>
 
 impl<U: Component + Default> super::WidgetBuilder<U> for Row<U>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		self.container.build(theme_data, parent_theme, commands)
+		self.container.build(theme_data, parent_data, commands)
 	}
 }
 

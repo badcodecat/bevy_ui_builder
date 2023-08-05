@@ -215,9 +215,9 @@ impl<U: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextLabel<U>
 
 impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		self.apply_theme(parent_theme, theme_data);
+		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
 		// Apply font size.
 		let font_size = self.fixed_text_size.unwrap_or(BASE_TEXT_SIZE);
@@ -226,7 +226,7 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 			section.style.font_size = font_size;
 		}
 
-		let container = self.container.build(theme_data, parent_theme, commands);
+		let container = self.container.build(theme_data, parent_data, commands);
 
 		let container = commands.entity(container).insert(AutoSizedText).id();
 		let label = commands

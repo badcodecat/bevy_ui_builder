@@ -20,16 +20,12 @@ pub fn toggle_checkbox
 		if *interaction != Interaction::Pressed
 			{ continue; }
 		state.checked = !state.checked;
-		// The hierarchy is: This entity -> TextButton -> Container -> TextBundle. (-> Text Component)
+		// The hierarchy is: TextButton/BaseButton -> Container -> TextBundle. (-> Text Component)
 		let child = children_query.get(entity).unwrap()[0]; // Get the TextButton.
 		let child = children_query.get(child).unwrap()[0]; // Get the Container.
-		// let child = children_query.get(child).unwrap()[0]; // Get the TextBundle.
 		let mut text = text_query.get_mut(child).unwrap(); // Get the Text Component.
 
-		// let text = text_query.get_many_mut::<1>(children.iter().map(|&entity| entity).collect::<Vec<_>>().as_slice().try_into().unwrap()).unwrap();
-		// let [mut text] = text;
 		text.sections[0].value = if state.checked { "X" } else { " " }.to_string();
-		println!("Checkbox state: {}", state.checked);
 	}
 }
 
@@ -48,7 +44,7 @@ impl<U: Component + Default, M: Component + Default> CheckBox<U, M>
 		let mut text_button = TextButton::new(" ")
 			.with_aspect_ratio(1f32)
 			;
-		text_button.label = text_button.label.with_border(crate::theme::dimensions::SMALL);
+		text_button = text_button.with_border(crate::theme::dimensions::LARGE);
 		Self
 		{
 			text_button,
@@ -86,14 +82,14 @@ impl<U: Component + Default, M: Component + Default> Widget for CheckBox<U, M>
 
 impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for CheckBox<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Apply the initial checked state.
 		// TODO: This code is ugly, can pretty?
 		self.text_button.label.label.text.sections[0].value = if self.initial_checked_state { "X" } else { " " }.to_string();
 
 		// Build the button.
-		let button_entity = self.text_button.build(theme_data, parent_theme, commands);
+		let button_entity = self.text_button.build(theme_data, parent_data, commands);
 
 		// Add the checkbox state.
 		commands.entity(button_entity)

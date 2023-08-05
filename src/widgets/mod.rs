@@ -101,16 +101,77 @@ pub fn ensure_aspect_ratio
 	text_resize_writer.send(TextResizeEvent);
 }
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct ParentData
+{
+	/// The last theme in the tree that isn't Theme::Auto or Theme::Custom.
+	pub last_theme: Theme,
+	/// The parent's theme. (Can be Theme::Auto or Theme::Custom)
+	pub current_theme: Theme,
+	/// The Z index of the parent.
+	pub z_index: i8,
+}
+
+impl ParentData
+{
+	/// This is mostly for internal use.
+	pub fn new(last_theme: Theme, current_theme: Theme, z_index: i8) -> Self
+	{
+		Self
+		{
+			last_theme,
+			current_theme,
+			z_index,
+		}
+	}
+
+	/// Picks the theme that the child widget should inherit from.
+	pub fn resolve_theme(&self) -> Theme
+	{
+		if self.current_theme == Theme::Auto
+			{ self.last_theme }
+		else
+			{ self.current_theme }
+	}
+	fn from_current(&self, current_theme: Theme) -> Self
+	{
+		let last_theme = match current_theme
+		{
+			Theme::Auto => self.resolve_theme(),
+			_ => current_theme,
+		};
+		Self
+		{
+			last_theme,
+			current_theme,
+			z_index: self.z_index,
+		}
+	}
+}
+
+impl Default for ParentData
+{
+	fn default() -> Self
+	{
+		Self
+		{
+			last_theme: Theme::Auto,
+			current_theme: Theme::Auto,
+			z_index: 0,
+		}
+	}
+
+}
 
 pub trait WidgetBuilder<U>
 	where U: Component + Default
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity;
+	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity;
 }
 
 impl<U: Component + Default> WidgetBuilder<U> for Entity
 {
-	fn build(&mut self, _: &crate::theme::ThemeData, _parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, _: &crate::theme::ThemeData, _parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		commands.entity(*self).insert(U::default()).id()
 	}

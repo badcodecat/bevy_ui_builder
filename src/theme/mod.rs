@@ -23,7 +23,7 @@ pub enum Theme
 
 pub trait ThemeApplicator
 {
-	fn apply_theme(&mut self, theme: Theme, theme_data: &ThemeData);
+	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData);
 }
 impl Theme
 {

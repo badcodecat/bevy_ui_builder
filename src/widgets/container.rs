@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::WidgetBuilder;
+use super::{WidgetBuilder, ParentData};
 use crate::theme::{Theme, ThemeApplicator, CurrentTheme, PaintMode};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
@@ -181,20 +181,20 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 
 impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Apply theming.
-		if parent_theme == Theme::Auto
+		if parent_data.last_theme == Theme::Auto && parent_data.current_theme == Theme::Auto
 		{
 			self.theme = Theme::Base;
 		}
-		self.apply_theme(parent_theme, theme_data);
+		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
-		let new_parent_theme = if self.theme == Theme::Auto { parent_theme } else { self.theme };
+		let new_parent_data = parent_data.from_current(self.theme);
 
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_theme, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_data, commands)).collect();
 		let mut this_container = commands.spawn(self.node_bundle.clone()); // TODO: See if we can avoid cloning the node bundle.
-		
+
 		if let Some(aspect_ratio) = self.aspect_ratio
 		{
 			this_container.insert(super::AspectRatio(aspect_ratio));

@@ -56,7 +56,7 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(column_primary)
 		.push(column_secondary)
 		;
-	root.build(&theme.0, Theme::Auto, &mut commands);
+	root.build(&theme.0, ParentData::default(), &mut commands);
 }
 
 fn build_sample_widgets() -> impl Into<Box<dyn WidgetBuilder<MyUI>>>

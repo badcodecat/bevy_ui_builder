@@ -221,13 +221,14 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 
 impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseButton<U, M>
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_theme: Theme, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Apply theming.
-		self.apply_theme(parent_theme, theme);
+		self.apply_theme(parent_data.resolve_theme(), theme);
 
 		// Build children.
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, self.theme, commands)).collect();
+		let new_parent_data = parent_data.from_current(self.theme);
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, new_parent_data, commands)).collect();
 
 		let mut button = commands.spawn(self.button_bundle.clone());
 		if let Some(aspect_ratio) = self.aspect_ratio

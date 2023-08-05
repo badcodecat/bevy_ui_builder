@@ -68,7 +68,7 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
-		.build(&theme.0, Theme::Auto, &mut commands)
+		.build(&theme.0, ParentData::default(), &mut commands)
 		;
 }
 
