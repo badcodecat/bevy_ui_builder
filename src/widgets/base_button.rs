@@ -211,7 +211,7 @@ impl<U: Component + Default, M: Component + Default> super::Widget for BaseButto
 
 impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseButton<U, M>
 {
-	fn apply_theme(&mut self, _parent_theme: Theme, theme_data: &ThemeData)
+	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
 		// Apply padding and margin.
 		if let Some(padding) = self.custom_padding
@@ -222,21 +222,28 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 		{
 			self.button_bundle.style.margin = margin;
 		}
+
+		let theme = match self.theme
+		{
+			Theme::Auto => parent_theme,
+			_ => self.theme
+		};
+
 		self.button_bundle.background_color = match self.paint_mode
 		{
 			PaintMode::Background =>
-				self.theme.get_background(theme_data).into(),
+				theme.get_background(theme_data).into(),
 			PaintMode::BackgroundContainer =>
-				self.theme.get_background_container(theme_data).into(),
+				theme.get_background_container(theme_data).into(),
 			PaintMode::Invisible =>
 				Color::NONE.into(),
 		};
 		self.button_bundle.border_color = match self.paint_mode
 		{
 			PaintMode::Background =>
-				self.theme.get_background_container(theme_data).into(),
+				theme.get_background_container(theme_data).into(),
 			PaintMode::BackgroundContainer =>
-				self.theme.get_background(theme_data).into(),
+				theme.get_background(theme_data).into(),
 			PaintMode::Invisible =>
 				Color::NONE.into(),
 		};

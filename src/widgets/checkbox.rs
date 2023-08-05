@@ -43,6 +43,7 @@ impl<U: Component + Default, M: Component + Default> CheckBox<U, M>
 		// ! FIXME: Border is not working.
 		let mut text_button = TextButton::new(" ")
 			.with_aspect_ratio(1f32)
+			.with_paint_mode(PaintMode::BackgroundContainer)
 			;
 		text_button = text_button.with_border(crate::theme::dimensions::LARGE);
 		Self

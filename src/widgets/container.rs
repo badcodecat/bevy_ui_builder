@@ -150,17 +150,18 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 			self.node_bundle.style.padding = padding;
 		}
 
-		if self.theme == Theme::Auto
+		let theme = match self.theme
 		{
-			self.theme = parent_theme;
-		}
+			Theme::Auto => parent_theme,
+			_ => self.theme
+		};
 
 		match self.paint_mode
 		{
 			PaintMode::Background =>
-				self.node_bundle.background_color = self.theme.get_background(theme_data).into(),
+				self.node_bundle.background_color = theme.get_background(theme_data).into(),
 			PaintMode::BackgroundContainer =>
-				self.node_bundle.background_color = self.theme.get_background_container(theme_data).into(),
+				self.node_bundle.background_color = theme.get_background_container(theme_data).into(),
 			PaintMode::Invisible =>
 				self.node_bundle.background_color = Color::NONE.into(),
 		}
@@ -168,9 +169,9 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 		match self.paint_mode
 		{
 			PaintMode::Background =>
-				self.node_bundle.border_color = self.theme.get_background_container(theme_data).into(),
+				self.node_bundle.border_color = theme.get_background_container(theme_data).into(),
 			PaintMode::BackgroundContainer =>
-				self.node_bundle.border_color = self.theme.get_background(theme_data).into(),
+				self.node_bundle.border_color = theme.get_background(theme_data).into(),
 			PaintMode::Invisible =>
 				self.node_bundle.border_color = Color::NONE.into(),
 		}
@@ -181,11 +182,6 @@ impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 {
 	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		// Apply theming.
-		if parent_data.last_theme == Theme::Auto && parent_data.current_theme == Theme::Auto
-		{
-			self.theme = Theme::Base;
-		}
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
 		let new_parent_data = parent_data.from_current(self.theme);
