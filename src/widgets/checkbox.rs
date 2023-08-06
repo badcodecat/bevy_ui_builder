@@ -52,6 +52,9 @@ impl<U: Component + Default, M: Component + Default> CheckBox<U, M>
 			initial_checked_state: false,
 		}
 	}
+
+	pub fn with_checked(mut self, checked: bool) -> Self
+		{ self.initial_checked_state = checked; self }
 }
 
 

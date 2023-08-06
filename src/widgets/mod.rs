@@ -48,6 +48,16 @@ use crate::theme::{Theme, PaintMode};
 // 		Val::Auto
 // 	}
 // }
+pub fn resize_on_window_change
+(
+	_window_change_query: Query<((), Changed<Window>)>, // We only need to know if the window changed.
+	mut resize_writer: EventWriter<TextResizeEvent>,
+	mut aspect_ratio_writer: EventWriter<AspectRatioEvent>
+)
+{
+	resize_writer.send(TextResizeEvent);
+	aspect_ratio_writer.send(AspectRatioEvent);
+}
 
 pub fn resize_on_window_resize
 (

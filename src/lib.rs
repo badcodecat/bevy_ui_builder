@@ -27,6 +27,7 @@ impl Plugin for UIAutomationsPlugin
 				(
 					widgets::text_label::resize_text,
 					widgets::resize_on_window_resize,
+					widgets::resize_on_window_change
 				)
 			)
 			.add_systems(Update, widgets::base_button::send_pressed_on_keyboard)
