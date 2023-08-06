@@ -87,18 +87,18 @@ pub fn ensure_aspect_ratio
 		{
 			Ordering::Less =>
 			{
-				// style.height = Val::Px(size.x / aspect_ratio);
-				// style.width = Val::Px(size.x);
-				style.width = Val::Percent(100f32);
-				style.height = Val::Percent(size.x / aspect_ratio * 100f32 / size.y);
+				style.height = Val::Px(size.x / aspect_ratio);
+				style.width = Val::Px(size.x);
+				// style.width = Val::Percent(100f32);
+				// style.height = Val::Percent(size.x / aspect_ratio * 100f32 / size.y);
 			},
 			Ordering::Greater =>
 			{
-				// style.width = Val::Px(size.y * aspect_ratio);
-				// style.height = Val::Px(size.y);
+				style.width = Val::Px(size.y * aspect_ratio);
+				style.height = Val::Px(size.y);
 
-				style.height = Val::Percent(100f32);
-				style.width = Val::Percent(size.y * aspect_ratio * 100f32 / size.x);
+				// style.height = Val::Percent(100f32);
+				// style.width = Val::Percent(size.y * aspect_ratio * 100f32 / size.x);
 			},
 			Ordering::Equal =>
 			{
