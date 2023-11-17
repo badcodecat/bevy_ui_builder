@@ -7,9 +7,9 @@ pub mod widgets;
 pub mod theme;
 pub mod test;
 
-pub struct UIAutomationsPlugin;
+pub struct UIEventsPlugin;
 
-impl Plugin for UIAutomationsPlugin
+impl Plugin for UIEventsPlugin
 {
 	fn build(&self, app: &mut App)
 	{
@@ -214,7 +214,7 @@ mod tests
 		let plugin = UIBuilderPlugin::<TestUI, _>::new(TestApplicationState::Startup)
 			.register_builder::<TestUI, _>(test_insert_resource);
 		plugin.build(&mut app);
-		UIAutomationsPlugin.build(&mut app);
+		UIEventsPlugin.build(&mut app);
 		app.update();
 		let test_resource = app.world.get_resource::<TestResource>().expect("TestResource not inserted");
 		assert_eq!(test_resource.0, MAGIC_NUMBER);

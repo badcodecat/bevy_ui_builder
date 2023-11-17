@@ -1,22 +1,22 @@
 [package]
 name = "bevy_ui_builder"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
 
 [dependencies]
-bevy-ui-navigation = "0.28.0"
-bevy_eventlistener = "0.2.2"
+bevy-ui-navigation = "0.33.1"
+bevy_eventlistener = "0.6.0"
 dark-light = "1.0.0"
 once_cell = "1.18.0"
 
 [dependencies.bevy]
-version = "0.11.3"
+version = "0.12"
 default-features = false
-features = ["bevy_ui", "bevy_text", "bevy_winit"]
+features = ["bevy_ui", "bevy_text", "bevy_winit", "default_font"]
 
 [target.'cfg(target_os = "linux")'.dependencies.bevy]
-version = "0.11.3"
+version = "0.12"
 default-features = false
 features = ["x11", "wayland"]

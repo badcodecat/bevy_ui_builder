@@ -13,7 +13,7 @@ fn main()
 	App::new()
 		.add_plugins(DefaultPlugins)
 		.add_state::<ApplicationState>()
-		.add_plugins(UIAutomationsPlugin)
+		.add_plugins(UIEventsPlugin)
 		.add_plugins
 		(
 			UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Menu)

@@ -193,7 +193,8 @@ pub fn clone_text_bundle(text_bundle: &TextBundle) -> TextBundle
 		transform: text_bundle.transform.clone(),
 		global_transform: text_bundle.global_transform.clone(),
 		visibility: text_bundle.visibility.clone(),
-		computed_visibility: text_bundle.computed_visibility.clone(),
+		inherited_visibility: text_bundle.inherited_visibility.clone(),
+		view_visibility: text_bundle.view_visibility.clone(),
 		z_index: text_bundle.z_index.clone(),
 		background_color: text_bundle.background_color.clone(),
 	}

@@ -11,7 +11,7 @@ impl Plugin for MenuPlugin
 	fn build(&self, app: &mut App)
 	{
 		app
-		.add_plugins(UIAutomationsPlugin)
+		.add_plugins(UIEventsPlugin)
 		.add_plugins
 		(
 			UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Menu)

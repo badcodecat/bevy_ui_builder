@@ -76,6 +76,8 @@ impl Default for ThemeData
 {
 	fn default() -> Self
 	{
+		// Print theme type
+		println!("Theme: {:?}", dark_light::detect());
 		match dark_light::detect()
 		{
 			dark_light::Mode::Dark => themes::DARK.clone(),

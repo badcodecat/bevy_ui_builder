@@ -106,7 +106,7 @@ pub fn handle_text_input
 		{
 			cursor.position = text.text.len();
 		}
-		for event in text_input.iter()
+		for event in text_input.read()
 		{
 			if event.char.is_control()
 				{ continue; }

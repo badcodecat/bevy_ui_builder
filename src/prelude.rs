@@ -9,4 +9,4 @@ pub use crate::widgets::checkbox::CheckBoxState;
 pub use crate::theme::CurrentThemeData;
 pub use crate::theme::Theme;
 pub use crate::UIBuilderPlugin;
-pub use crate::UIAutomationsPlugin;
+pub use crate::UIEventsPlugin;

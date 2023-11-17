@@ -19,7 +19,6 @@ fn main()
 		.add_plugins(DefaultPlugins)
 		.add_state::<ApplicationState>()
 		.add_plugins(menu::MenuPlugin)
-		// You could use a plugin for this, but this is a simple example.
 		.add_systems
 		(
 			OnEnter(ApplicationState::Game),
