@@ -3,7 +3,6 @@ This is my preferred way of creating UI. It is based loosely on [iced](https://g
 ## Warning
 This is in very early development, use at your own risk. At the moment there is little/no documentation.
 
-There is going to be a change from Component based to Event based (See https://github.com/aevyrie/bevy_eventlistener/tree/main).
 # Usage
 Right now this works with bevy version 0.11
 
