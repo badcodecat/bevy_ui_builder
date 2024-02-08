@@ -1,15 +1,10 @@
-# IMPORTANT:This code no longers works as of bevy 0.12.1
-This could be due to any number of reasons but is most likely due to weird unsafe code and hacks I used to get it to work in the first place.
-
 # bevy_ui_builder
 This is my preferred way of creating UI. It is based loosely on [iced](https://github.com/iced-rs/iced) and uses bevy's ecs and bevy's built-in ui.
 ## Warning
 This is in very early development, use at your own risk. At the moment there is little/no documentation.
 
 # Usage
-Right now this works with bevy version 0.12
-
-
+Right now this works with bevy version 0.12.1
 Add `bevy_ui_builder = { git = "https://github.com/badcodecat/bevy_ui_builder.git" }` to your Cargo.toml.
 
 
