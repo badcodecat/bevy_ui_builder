@@ -5,8 +5,8 @@ This is in very early development, use at your own risk. At the moment there is 
 
 # Usage
 Right now this works with bevy version 0.12.1
-Add `bevy_ui_builder = { git = "https://github.com/badcodecat/bevy_ui_builder.git" }` to your Cargo.toml.
 
+Add `bevy_ui_builder = { git = "https://github.com/badcodecat/bevy_ui_builder.git" }` to your Cargo.toml.
 
 There are some samples of how to use this in the examples directory.
 
