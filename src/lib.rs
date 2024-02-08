@@ -1,5 +1,5 @@
-use std::{collections::HashMap, any::TypeId, marker::PhantomData};
-use bevy::{ prelude::*, ecs::system::BoxedSystem };
+use std::{any::TypeId, collections::HashMap, marker::PhantomData, sync::Mutex};
+use bevy::{ ecs::{schedule::SystemConfigs, system::BoxedSystem}, prelude::* };
 use bevy_ui_navigation::prelude::*;
 
 pub mod prelude;
@@ -58,7 +58,7 @@ impl Plugin for UIEventsPlugin
 pub struct UIBuilderPlugin<D: Component, S: States>
 {
 	pub theme: theme::ThemeData,
-	pub builders: HashMap<TypeId, BoxedSystem>,
+	pub builders: Mutex<HashMap<TypeId, SystemConfigs>>,
 	pub change_detectors: HashMap<TypeId, Vec<BoxedSystem>>,
 	// pub update_systems: Vec<BoxedSystem>,
 	pub state: S,
@@ -88,18 +88,18 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 	}
 
 
-	pub fn register_builder<C: Component + Default, M>(mut self, builder: impl IntoSystem<(), (), M>) -> Self
+	pub fn register_builder<C: Component + Default, M>(self, builder: impl IntoSystemConfigs<M>) -> Self
 	{
-		let builder = Box::new(IntoSystem::into_system(builder));
+		// let builder = Box::new(IntoSystem::into_system(builder));
 		use std::any::Any;
-		self.builders.insert(C::default().type_id(), builder);
+		self.builders.lock().unwrap().insert(C::default().type_id(), builder.into_configs());
 		self
 	}
 
-	pub fn register_root_builder<M>(mut self, builder: impl IntoSystem<(), (), M>) -> Self
+	pub fn register_root_builder<M>(self, builder: impl IntoSystemConfigs<M>) -> Self
 	{
-		let builder = Box::new(IntoSystem::into_system(builder));
-		self.builders.insert(TypeId::of::<D>(), builder);
+		// let builder = Box::new(IntoSystem::into_system(builder));
+		self.builders.lock().unwrap().insert(TypeId::of::<D>(), builder.into_configs());
 		self
 	}
 
@@ -129,8 +129,8 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		use std::any::Any;
 		let root_component_id = D::default().type_id();
 		// Unsafe cast to &mut self
-		#[allow(mutable_transmutes)]
-		let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D, S>, &mut UIBuilderPlugin<D, S>>(self) };
+		// #[allow(mutable_transmutes)]
+		// let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D, S>, &mut UIBuilderPlugin<D, S>>(self) };
 		// #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, SystemSet)]
 		// pub enum BuildSet
 		// {
@@ -139,9 +139,11 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		// }
 		#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Resource)]
 		pub struct ResizeLocal<T>(pub u8, pub PhantomData<T>);
-		let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
+		// let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
+		let mut unlocked_builders = self.builders.lock().unwrap();
+		let root_builder = unlocked_builders.remove(&root_component_id).unwrap();
 		app
-			.add_systems(OnEnter(self.state.clone()), root_builder)
+			.add_systems(OnEnter(self.state.clone()), root_builder.into_configs())
 			.add_systems
 			(
 				OnEnter(self.state.clone()),
@@ -189,9 +191,9 @@ mod tests
 {
 	use super::*;
 	/// By simulating a UI Builder system that inserts a resource, we can check if that resource is inserted.
-	/// This means that the .build(...) method is still able to mutably access the stored systems.
+	/// This means that the .build(...) method is still able to mutably access the stored systems. (Via a mutex now)
 	#[test]
-	fn unsafe_mut_transmute_still_works()
+	fn adding_systems_works()
 	{
 		#[derive(Default, States, Debug, Hash, Eq, PartialEq, Clone, Copy)]
 		pub enum TestApplicationState
@@ -212,7 +214,7 @@ mod tests
 			commands.insert_resource(TestResource(MAGIC_NUMBER));
 		}
 		let plugin = UIBuilderPlugin::<TestUI, _>::new(TestApplicationState::Startup)
-			.register_builder::<TestUI, _>(test_insert_resource);
+			.register_builder::<TestUI, _>(test_insert_resource.into_configs());
 		plugin.build(&mut app);
 		UIEventsPlugin.build(&mut app);
 		app.update();
