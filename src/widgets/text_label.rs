@@ -1,3 +1,6 @@
+use std::ops::Deref;
+use std::ops::DerefMut;
+
 use bevy::prelude::*;
 
 use super::*;
@@ -33,6 +36,7 @@ pub fn resize_text
 			Some(AspectRatio(aspect_ratio)) => 4f32 / aspect_ratio,
 			None => 2.25, // Magic number for a assumed 16:9 aspect ratio.
 		};
+		// let text_divisor = 10.1f32; //Temporary number for testing.
 		let text_size = size.y / text_divisor;
 
 		for section in text.sections.iter_mut()
@@ -218,7 +222,10 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 
 		let container = self.container.build(theme_data, parent_data, commands);
 
-		let container = commands.entity(container).insert(AutoSizedText).id();
+		let mut container = commands.entity(container);
+		if self.fixed_text_size.is_none()
+			{ container.insert(AutoSizedText); }
+		let container = container.id();
 		let label = commands
 			.spawn(clone_text_bundle(&self.label))
 			.insert(U::default())
