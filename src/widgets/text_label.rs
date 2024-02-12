@@ -34,12 +34,7 @@ pub fn resize_text
 			None => 2.25, // Magic number for a assumed 16:9 aspect ratio.
 		};
 		let text_size = size.y / text_divisor;
-		// if text_size == 0f32
-		// {
-		// 	println!("Text size is 0, skipping.");
-		// 	resize_writer.send(TextResizeEvent);
-		// 	continue;
-		// }
+
 		for section in text.sections.iter_mut()
 		{
 			section.style.font_size = text_size;

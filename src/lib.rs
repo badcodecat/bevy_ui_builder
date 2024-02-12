@@ -38,6 +38,7 @@ impl Plugin for UIEventsPlugin
 					widgets::text_input::handle_text_input,
 					widgets::text_input::update_text_sections,
 					widgets::checkbox::toggle_checkbox,
+					widgets::checkbox::handle_checkbox_toggle
 				)
 			)
 			.add_plugins(DefaultNavigationPlugins)

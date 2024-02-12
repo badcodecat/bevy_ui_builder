@@ -18,7 +18,6 @@ fn main()
 		(
 			UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Menu)
 				// Change here to see the different themes
-				.with_theme(bevy_ui_builder::theme::themes::LIGHT.clone())
 				.register_root_builder(build_root)
 		)
 		.run();

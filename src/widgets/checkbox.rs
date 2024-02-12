@@ -10,16 +10,28 @@ pub struct CheckBoxState
 
 pub fn toggle_checkbox
 (
-	mut query: Query<(&mut CheckBoxState, &Interaction, Entity), Changed<Interaction>>,
+	mut query: Query<(&mut CheckBoxState, &Interaction), Changed<Interaction>>,
 	children_query: Query<&Children>,
 	mut text_query: Query<&mut Text>
 )
 {
-	for (mut state, interaction, entity) in query.iter_mut()
+	for (mut state, interaction) in query.iter_mut()
 	{
 		if *interaction != Interaction::Pressed
 			{ continue; }
 		state.checked = !state.checked;
+	}
+}
+
+pub fn handle_checkbox_toggle
+(
+	query: Query<(&CheckBoxState, Entity), Changed<CheckBoxState>>,
+	children_query: Query<&Children>,
+	mut text_query: Query<&mut Text>
+)
+{
+	for (state, entity) in query.iter()
+	{
 		// The hierarchy is: TextButton/BaseButton -> Container -> TextBundle. (-> Text Component)
 		let child = children_query.get(entity).unwrap()[0]; // Get the TextButton.
 		let child = children_query.get(child).unwrap()[0]; // Get the Container.
