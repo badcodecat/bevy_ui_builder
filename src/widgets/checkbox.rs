@@ -11,8 +11,6 @@ pub struct CheckBoxState
 pub fn toggle_checkbox
 (
 	mut query: Query<(&mut CheckBoxState, &Interaction), Changed<Interaction>>,
-	children_query: Query<&Children>,
-	mut text_query: Query<&mut Text>
 )
 {
 	for (mut state, interaction) in query.iter_mut()
