@@ -61,7 +61,7 @@ pub struct UIBuilderPlugin<D: Component, S: States>
 	pub theme: theme::ThemeData,
 	pub builders: Mutex<HashMap<TypeId, SystemConfigs>>,
 	pub change_detectors: HashMap<TypeId, Vec<BoxedSystem>>,
-	// pub update_systems: Vec<BoxedSystem>,
+	pub root_builder: Mutex<Option<SystemConfigs>>,
 	pub state: S,
 	_d: std::marker::PhantomData<D>,
 }
@@ -75,7 +75,7 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 			theme: theme::ThemeData::default(),
 			builders: Default::default(),
 			change_detectors: Default::default(),
-			// update_systems: Default::default(),
+			root_builder: None.into(),
 			state: state,
 			_d: std::marker::PhantomData,
 		};
@@ -100,7 +100,10 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 	pub fn register_root_builder<M>(self, builder: impl IntoSystemConfigs<M>) -> Self
 	{
 		// let builder = Box::new(IntoSystem::into_system(builder));
-		self.builders.lock().unwrap().insert(TypeId::of::<D>(), builder.into_configs());
+		let mut unlocked_root_builder = self.root_builder.lock().unwrap();
+		*unlocked_root_builder = Some(builder.into_configs());
+		drop(unlocked_root_builder);
+		// self.builders.lock().unwrap().insert(TypeId::of::<D>(), builder.into_configs());
 		self
 	}
 
@@ -127,8 +130,8 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 {
 	fn build(&self, app: &mut App)
 	{
-		use std::any::Any;
-		let root_component_id = D::default().type_id();
+		// use std::any::Any;
+		// let root_component_id = D::default().type_id();
 		// Unsafe cast to &mut self
 		// #[allow(mutable_transmutes)]
 		// let self_mut = unsafe { std::mem::transmute::<&UIBuilderPlugin<D, S>, &mut UIBuilderPlugin<D, S>>(self) };
@@ -142,7 +145,8 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		pub struct ResizeLocal<T>(pub u8, pub PhantomData<T>);
 		// let root_builder = self_mut.builders.remove(&root_component_id).unwrap();
 		let mut unlocked_builders = self.builders.lock().unwrap();
-		let root_builder = unlocked_builders.remove(&root_component_id).unwrap();
+		// let root_builder = unlocked_builders.remove(&root_component_id).unwrap();
+		let root_builder = self.root_builder.lock().unwrap().take().unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder.into_configs())
 			.add_systems
@@ -215,7 +219,7 @@ mod tests
 			commands.insert_resource(TestResource(MAGIC_NUMBER));
 		}
 		let plugin = UIBuilderPlugin::<TestUI, _>::new(TestApplicationState::Startup)
-			.register_builder::<TestUI, _>(test_insert_resource.into_configs());
+			.register_root_builder(test_insert_resource);
 		plugin.build(&mut app);
 		UIEventsPlugin.build(&mut app);
 		app.update();
