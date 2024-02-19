@@ -5,9 +5,9 @@ use bevy::prelude::*;
 pub mod container;
 pub use container::*;
 // Utility function to create a container with a fill portion.
-pub fn create_space<U: Component + Default>(size: f32) -> container::Container<U>
+pub fn create_space<U: Component + Default>(size: f32) -> container::Container<U, ()>
 {
-	container::Container::new()
+	container::Container::<_, ()>::new()
 		.with_fill_portion(size)
 }
 
@@ -79,7 +79,7 @@ pub struct AspectRatioEvent;
 #[derive(Component, Default)]
 pub struct AspectRatio(pub f32);
 
-// ! FIXME: This is completely broken.
+// ! FIXME: This is mostly completely broken.
 pub fn ensure_aspect_ratio
 (
 	aspect_ratio_events: EventReader<AspectRatioEvent>,

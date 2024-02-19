@@ -1,3 +1,4 @@
+#![feature(trivial_bounds)]
 use std::{any::TypeId, collections::HashMap, marker::PhantomData, sync::Mutex};
 use bevy::{ ecs::{schedule::SystemConfigs, system::BoxedSystem}, prelude::* };
 use bevy_ui_navigation::prelude::*;
@@ -55,6 +56,14 @@ impl Plugin for UIEventsPlugin
 	}
 }
 
+// This resource describes the UI tree of named elements.
+
+#[derive(Resource)]
+pub struct UIHierarchy(pub trees::Tree<TypeId>);
+
+// This component describes the closest named element to the entity.
+#[derive(Component)]
+pub struct UIOwner(pub TypeId);
 
 pub struct UIBuilderPlugin<D: Component, S: States>
 {

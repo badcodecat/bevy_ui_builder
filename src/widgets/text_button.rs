@@ -6,13 +6,13 @@ use super::*;
 use super::base_button::*;
 
 pub struct TextButton<U, M>
-	where U: Component + Default, M: Component + Default
+	where U: Component + Default, M: Default
 {
 	pub base_button: BaseButton<U, M>,
-	pub label: TextLabel<U>,
+	pub label: TextLabel<U, M>,
 }
 
-impl<U: Component + Default, M: Component + Default> TextButton<U, M>
+impl<U: Component + Default, M: Default> TextButton<U, M>
 {
 	pub fn new(text: impl Into<String>)-> Self
 	{
@@ -26,7 +26,7 @@ impl<U: Component + Default, M: Component + Default> TextButton<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Widget for TextButton<U, M>
+impl<U: Component + Default, M: Default> Widget for TextButton<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 		{ self.base_button = self.base_button.with_paint_mode(paint_mode); self }
@@ -54,7 +54,7 @@ impl<U: Component + Default, M: Component + Default> Widget for TextButton<U, M>
 		{ self.base_button = self.base_button.with_theme(theme); self }
 }
 
-impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextButton<U, M>
+impl<U: Component + Default, M: Default + 'static> WidgetBuilder<U> for TextButton<U, M>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -71,7 +71,7 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextBu
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextButton<U, M>
+impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for TextButton<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

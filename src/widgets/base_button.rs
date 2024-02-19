@@ -69,7 +69,7 @@ pub fn send_pressed_on_keyboard
 }
 
 pub struct BaseButton<U, M>
-	where U: Component + Default, M: Component + Default
+	where U: Component + Default, M: Default
 {
 	pub button_bundle: ButtonBundle,
 	pub theme: Theme,
@@ -86,7 +86,7 @@ pub struct BaseButton<U, M>
 	phantom: std::marker::PhantomData<M>,
 }
 
-impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
+impl<U: Component + Default, M: Default> BaseButton<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -132,7 +132,7 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> super::Widget for BaseButton<U, M>
+impl<U: Component + Default, M: Default> super::Widget for BaseButton<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -209,7 +209,7 @@ impl<U: Component + Default, M: Component + Default> super::Widget for BaseButto
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseButton<U, M>
+impl<U: Component + Default, M: Default> ThemeApplicator for BaseButton<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
@@ -250,7 +250,7 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseButton<U, M>
+impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for BaseButton<U, M>
 {
 	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -268,19 +268,34 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseBu
 		}
 		button
 			.insert(U::default())
-			.insert(M::default())
 			.insert(AutoStyledButton)
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
 			.insert(Focusable::default())
 			.push_children(&children)
 			;
+
+				// Check if M is a Component, and if so, insert it.
+		use std::any::Any;
+		let m_any: Box<dyn Any> = Box::new(M::default());
+		let m_any_component_check: Box<dyn Any> = Box::new(M::default());
+		if m_any_component_check.downcast::<Box<dyn Component<Storage = bevy::ecs::storage::Table>>>().is_ok()
+		{
+			if let Ok(m_component) = m_any.downcast::<Box<dyn Reflect>>()
+			{
+				let m_component = *m_component;
+				use bevy::ecs::reflect::ReflectCommandExt;
+				button.insert_reflect(m_component);
+			}
+		}
+
+
 		if self.auto_style
 			{ button.insert(AutoStyledButton); }
 		button.id()
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
+impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

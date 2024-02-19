@@ -117,15 +117,15 @@ pub fn handle_text_input
 }
 
 
-pub struct TextInput<U: Component + Default, M: Component + Default>
+pub struct TextInput<U: Component + Default, M: Default>
 {
-	pub label: TextLabel<U>,
+	pub label: TextLabel<U, M>,
 	pub placeholder: Option<String>,
 	pub allows_newlines: bool,
 	phantom: PhantomData<M>,
 }
 
-impl<U: Component + Default, M: Component + Default> TextInput<U, M>
+impl<U: Component + Default, M: Default> TextInput<U, M>
 {
 	pub fn new(text: Option<String>) -> Self
 	{
@@ -147,7 +147,7 @@ impl<U: Component + Default, M: Component + Default> TextInput<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
+impl<U: Component + Default, M: Default> Widget for TextInput<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -211,7 +211,7 @@ impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextInput<U, M>
+impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for TextInput<U, M>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -221,8 +221,20 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextIn
 			.insert(Focusable::default())
 			.insert(EditableText::default())
 			.insert(EditCursor::default())
-			.insert(M::default())
 			;
+		// Check if M is a Component, and if so, insert it.
+		use std::any::Any;
+		let m_any: Box<dyn Any> = Box::new(M::default());
+		let m_any_component_check: Box<dyn Any> = Box::new(M::default());
+		if m_any_component_check.downcast::<Box<dyn Component<Storage = bevy::ecs::storage::Table>>>().is_ok()
+		{
+			if let Ok(m_component) = m_any.downcast::<Box<dyn Reflect>>()
+			{
+				let m_component = *m_component;
+				use bevy::ecs::reflect::ReflectCommandExt;
+				entity.insert_reflect(m_component);
+			}
+		}
 		if let Some(placeholder) = &self.placeholder
 		{ entity.insert(PlaceholderText { text: placeholder.clone() }); }
 		if self.allows_newlines
@@ -231,7 +243,7 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextIn
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
+impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

@@ -4,13 +4,13 @@ use super::*;
 
 use super::Container;
 
-pub struct Column<U>
-	where U: Component + Default
+pub struct Column<U, M>
+	where U: Component + Default, M: Default
 {
-	pub container: Container<U>,
+	pub container: Container<U, M>,
 }
 
-impl<U: Component + Default> Column<U>
+impl<U: Component + Default, M: Default> Column<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -25,7 +25,7 @@ impl<U: Component + Default> Column<U>
 		{ self.container = self.container.push(child); self }
 }
 
-impl<U: Component + Default> super::Widget for Column<U>
+impl<U: Component + Default, M: Default> super::Widget for Column<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 		{ self.container = self.container.with_paint_mode(paint_mode); self }
@@ -53,7 +53,7 @@ impl<U: Component + Default> super::Widget for Column<U>
 		{ self.container = self.container.with_theme(theme); self }
 }
 
-impl<U: Component + Default> super::WidgetBuilder<U> for Column<U>
+impl<U: Component + Default, M: Default + 'static> super::WidgetBuilder<U> for Column<U, M>
 {
 	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -61,7 +61,7 @@ impl<U: Component + Default> super::WidgetBuilder<U> for Column<U>
 	}
 }
 
-impl<U: Component + Default> Into<Box<dyn super::WidgetBuilder<U>>> for Column<U>
+impl<U: Component + Default, M: Default + 'static> Into<Box<dyn super::WidgetBuilder<U>>> for Column<U, M>
 {
 	fn into(self) -> Box<dyn super::WidgetBuilder<U>>
 	{
