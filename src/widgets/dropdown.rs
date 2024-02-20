@@ -1,4 +1,3 @@
-// ! I think development on this will be frozen until the change to Event based callbacks is complete.
 /*
 	This dropdown widget is going to be a bit more complicated than the others.
 	It will need to use Z indices to make sure that the dropdown is always on top of everything else.

@@ -5,7 +5,7 @@ use crate::theme::{ThemeData, PaintMode};
 use super::*;
 use super::base_button::*;
 
-pub struct TextButton<U, M>
+pub struct TextButton<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub base_button: BaseButton<U, M>,

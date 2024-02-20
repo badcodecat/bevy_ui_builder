@@ -4,7 +4,7 @@ use super::{WidgetBuilder, ParentData};
 use crate::theme::{Theme, ThemeApplicator, CurrentTheme, PaintMode};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
-pub struct Container<U, M>
+pub struct Container<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,

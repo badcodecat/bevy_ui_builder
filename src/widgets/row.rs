@@ -4,7 +4,7 @@ use super::*;
 
 use super::Container;
 
-pub struct Row<U, M>
+pub struct Row<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub container: Container<U, M>,

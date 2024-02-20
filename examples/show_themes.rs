@@ -30,19 +30,19 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
-	let root = bevy_ui_builder::widgets::Row::<MyUI, ()>::new()
+	let root = bevy_ui_builder::widgets::Row::<MyUI>::new()
 		.with_padding(bevy_ui_builder::theme::dimensions::LARGE);
-	let column_primary = bevy_ui_builder::widgets::Column::<_, ()>::new()
+	let column_primary = bevy_ui_builder::widgets::Column::<_>::new()
 		.with_theme(Theme::Primary)
 		.with_padding(bevy_ui_builder::theme::dimensions::LARGE)
 		.push(build_sample_widgets())
 		;
-	let column_secondary = bevy_ui_builder::widgets::Column::<_, ()>::new()
+	let column_secondary = bevy_ui_builder::widgets::Column::<_>::new()
 		.with_theme(Theme::Secondary)
 		.with_padding(bevy_ui_builder::theme::dimensions::LARGE)
 		.push(build_sample_widgets())
 		;
-	let column_tertiary = bevy_ui_builder::widgets::Column::<_, ()>::new()
+	let column_tertiary = bevy_ui_builder::widgets::Column::<_>::new()
 		.with_theme(Theme::Tertiary)
 		.with_padding(bevy_ui_builder::theme::dimensions::LARGE)
 		.push(build_sample_widgets())
@@ -60,11 +60,11 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 
 fn build_sample_widgets() -> impl Into<Box<dyn WidgetBuilder<MyUI>>>
 {
-	let text_label = bevy_ui_builder::widgets::TextLabel::<_, ()>::new("Text Label");
-	let text_input = bevy_ui_builder::widgets::TextInput::<_, ()>::new("Text Input".to_string().into());
-	let text_button = bevy_ui_builder::widgets::TextButton::<_, ()>::new("Text Button");
-	let checkbox = bevy_ui_builder::widgets::CheckBox::<_, ()>::new();
-	bevy_ui_builder::widgets::Column::<_, ()>::new()
+	let text_label = bevy_ui_builder::widgets::TextLabel::<_>::new("Text Label");
+	let text_input = bevy_ui_builder::widgets::TextInput::<_>::new("Text Input".to_string().into());
+	let text_button = bevy_ui_builder::widgets::TextButton::<_>::new("Text Button");
+	let checkbox = bevy_ui_builder::widgets::CheckBox::<_>::new();
+	bevy_ui_builder::widgets::Column::<_>::new()
 		.push(text_label)
 		.push(text_input)
 		.push(text_button)

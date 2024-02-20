@@ -68,7 +68,7 @@ pub fn send_pressed_on_keyboard
 	}
 }
 
-pub struct BaseButton<U, M>
+pub struct BaseButton<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub button_bundle: ButtonBundle,

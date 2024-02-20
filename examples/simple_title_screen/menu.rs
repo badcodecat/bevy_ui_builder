@@ -48,9 +48,9 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
-	let column = bevy_ui_builder::widgets::Column::<MyUI, ()>::new()
+	let column = bevy_ui_builder::widgets::Column::<MyUI>::new()
 		.with_fill_portion(3f32);
-	let title = bevy_ui_builder::widgets::TextLabel::<_, ()>::new("My Awesome Game")
+	let title = bevy_ui_builder::widgets::TextLabel::<_>::new("My Awesome Game")
 		;
 	let space = bevy_ui_builder::widgets::create_space(1f32);
 	let play_button = bevy_ui_builder::widgets::TextButton::<_, PlayButton>::new("Play");
@@ -64,7 +64,7 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(quit_button)
 		.push(bevy_ui_builder::widgets::create_space(3f32))
 		;
-	bevy_ui_builder::widgets::Row::<_, ()>::new()
+	bevy_ui_builder::widgets::Row::<_>::new()
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))

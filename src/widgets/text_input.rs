@@ -117,7 +117,7 @@ pub fn handle_text_input
 }
 
 
-pub struct TextInput<U: Component + Default, M: Default>
+pub struct TextInput<U: Component + Default, M: Default = ()>
 {
 	pub label: TextLabel<U, M>,
 	pub placeholder: Option<String>,

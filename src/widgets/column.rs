@@ -4,7 +4,7 @@ use super::*;
 
 use super::Container;
 
-pub struct Column<U, M>
+pub struct Column<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub container: Container<U, M>,

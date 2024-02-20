@@ -29,10 +29,10 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
-	let column = bevy_ui_builder::widgets::Column::<MyUI, ()>::new();
-	let node1 = bevy_ui_builder::widgets::Column::<_, ()>::new()
+	let column = bevy_ui_builder::widgets::Column::<MyUI>::new();
+	let node1 = bevy_ui_builder::widgets::Column::<_>::new()
 		.with_colour(Color::RED, Color::NONE);
-	let node2 = bevy_ui_builder::widgets::Column::<_, ()>::new()
+	let node2 = bevy_ui_builder::widgets::Column::<_>::new()
 		.with_colour(Color::GREEN, Color::NONE);
 	let column = column
 		.push(bevy_ui_builder::widgets::create_space(1f32))
@@ -40,7 +40,7 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(node2)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.with_fill_portion(2f32);
-	bevy_ui_builder::widgets::Row::<_, ()>::new()
+	bevy_ui_builder::widgets::Row::<_>::new()
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))

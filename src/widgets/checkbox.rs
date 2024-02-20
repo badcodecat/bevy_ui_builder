@@ -39,7 +39,7 @@ pub fn handle_checkbox_toggle
 	}
 }
 
-pub struct CheckBox<U, M>
+pub struct CheckBox<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub text_button: TextButton<U, M>,

@@ -42,7 +42,7 @@ pub fn resize_text
 		}
 	}
 }
-pub struct TextLabel<U, M>
+pub struct TextLabel<U, M = ()>
 	where U: Component + Default, M: Default
 {
 	pub container: Container<U, M>,
