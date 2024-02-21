@@ -117,7 +117,7 @@ pub fn handle_text_input
 }
 
 
-pub struct TextInput<U: Component + Default, M: Default = ()>
+pub struct TextInput<U: Component + Default, M: UIOptionalUniqueIdentifier = ()>
 {
 	pub label: TextLabel<U, M>,
 	pub placeholder: Option<String>,
@@ -125,7 +125,7 @@ pub struct TextInput<U: Component + Default, M: Default = ()>
 	phantom: PhantomData<M>,
 }
 
-impl<U: Component + Default, M: Default> TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> TextInput<U, M>
 {
 	pub fn new(text: Option<String>) -> Self
 	{
@@ -147,7 +147,7 @@ impl<U: Component + Default, M: Default> TextInput<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Default> Widget for TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for TextInput<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -211,7 +211,7 @@ impl<U: Component + Default, M: Default> Widget for TextInput<U, M>
 	}
 }
 
-impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for TextInput<U, M>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -243,7 +243,7 @@ impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for Te
 	}
 }
 
-impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

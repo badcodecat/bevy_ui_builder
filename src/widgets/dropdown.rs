@@ -21,7 +21,7 @@ pub struct DropdownSelection
 }
 
 pub struct Dropdown<U, M>
-	where U: Component + Default, M: Component + Default
+	where U: Component + Default, M: UIOptionalUniqueIdentifier
 {
 	/// The button that opens the dropdown and displays the current selection.
 	pub dropdown_base: TextButton<U, M>,

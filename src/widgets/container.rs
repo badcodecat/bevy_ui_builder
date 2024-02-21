@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
-use super::{WidgetBuilder, ParentData};
+use super::{ParentData, UIOptionalUniqueIdentifier, WidgetBuilder};
 use crate::theme::{Theme, ThemeApplicator, CurrentTheme, PaintMode};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
 pub struct Container<U, M = ()>
-	where U: Component + Default, M: Default
+	where U: Component + Default, M: UIOptionalUniqueIdentifier
 {
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	pub node_bundle: NodeBundle,
@@ -17,7 +17,7 @@ pub struct Container<U, M = ()>
 	phantom: std::marker::PhantomData<M>
 }
 
-impl<U: Component + Default, M: Default> Container<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Container<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -63,7 +63,7 @@ impl<U: Component + Default, M: Default> Container<U, M>
 }
 
 
-impl<U: Component + Default, M: Default> super::Widget for Container<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> super::Widget for Container<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -142,7 +142,7 @@ impl<U: Component + Default, M: Default> super::Widget for Container<U, M>
 
 }
 
-impl<U: Component + Default, M: Default> ThemeApplicator for Container<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> ThemeApplicator for Container<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &crate::theme::ThemeData)
 	{
@@ -180,10 +180,28 @@ impl<U: Component + Default, M: Default> ThemeApplicator for Container<U, M>
 	}
 }
 
-impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for Container<U, M>
+impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for Container<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, theme_data: &crate::theme::ThemeData, mut parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
+		// Check if M is a Component
+		use std::any::Any;
+		println!("Building a container with M: {}", std::any::type_name::<M>());
+		let m_any: Box<dyn Any> = Box::new(M::default());
+		let m_any_component_check: Box<dyn Reflect> = Box::new(M::default());
+		let m_any_component_check = !m_any_component_check.represents::<()>();
+		if m_any_component_check
+		{
+			// Update the ParentData
+			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();
+			println!("Parent UI Owner: {:?}", parent_data.parent_ui_owner);
+		}
+
+		if !m_any_component_check && std::any::type_name::<M>() != "()"
+		{
+			panic!("M is not a Component, but it's not (). This is not supported.");
+		}
+
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
 		let new_parent_data = parent_data.from_current(self.theme);
@@ -196,18 +214,24 @@ impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for Co
 			this_container.insert(super::AspectRatio(aspect_ratio));
 		}
 
-		// Check if M is a Component, and if so, insert it.
-		use std::any::Any;
-		let m_any: Box<dyn Any> = Box::new(M::default());
-		let m_any_component_check: Box<dyn Any> = Box::new(M::default());
-		if m_any_component_check.downcast::<Box<dyn Component<Storage = bevy::ecs::storage::Table>>>().is_ok()
+		if m_any_component_check
 		{
-			if let Ok(m_component) = m_any.downcast::<Box<dyn Reflect>>()
-			{
-				let m_component = *m_component;
+				let m_component: Box<dyn Reflect> = Box::new(M::default());
 				use bevy::ecs::reflect::ReflectCommandExt;
 				this_container.insert_reflect(m_component);
-			}
+				// Also insert it as an UIOwner
+				let ui_owner = crate::UIOwner(M::default().type_id());
+				this_container.insert(ui_owner);
+
+			// else { panic!("M is a Component, but it's not a Reflect. This is not supported."); }
+		}
+		else
+		{
+			// Otherwise inherit the parent's UIOwner.
+			let default_owner = crate::UIOwner(U::default().type_id());
+			let owner = parent_data.parent_ui_owner.unwrap_or(default_owner);
+			this_container.insert(owner);
+			parent_data.parent_ui_owner = Some(owner);
 		}
 
 		this_container
@@ -218,7 +242,7 @@ impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for Co
 	}
 }
 
-impl<U: Component + Default, M: Default + 'static> From<Container<U, M>> for Box<dyn WidgetBuilder<U>>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> From<Container<U, M>> for Box<dyn WidgetBuilder<U>>
 {
 	fn from(container: Container<U, M>) -> Self
 	{

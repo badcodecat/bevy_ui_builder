@@ -40,13 +40,13 @@ pub fn handle_checkbox_toggle
 }
 
 pub struct CheckBox<U, M = ()>
-	where U: Component + Default, M: Default
+	where U: Component + Default, M: UIOptionalUniqueIdentifier
 {
 	pub text_button: TextButton<U, M>,
 	pub initial_checked_state: bool,
 }
 
-impl<U: Component + Default, M: Default> CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> CheckBox<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -68,7 +68,7 @@ impl<U: Component + Default, M: Default> CheckBox<U, M>
 }
 
 
-impl<U: Component + Default, M: Default> Widget for CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for CheckBox<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 		{ self.text_button = self.text_button.with_paint_mode(paint_mode); self }
@@ -96,7 +96,7 @@ impl<U: Component + Default, M: Default> Widget for CheckBox<U, M>
 		{ self.text_button = self.text_button.with_theme(theme); self }
 }
 
-impl<U: Component + Default, M: Default + 'static> WidgetBuilder<U> for CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for CheckBox<U, M>
 {
 	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -117,7 +117,7 @@ impl<U: Component + Default, M: Default + 'static> WidgetBuilder<U> for CheckBox
 	}
 }
 
-impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Into<Box<dyn WidgetBuilder<U>>> for CheckBox<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

@@ -37,7 +37,7 @@ pub use checkbox::*;
 pub mod dropdown;
 pub use dropdown::*;
 
-use crate::theme::{Theme, PaintMode};
+use crate::{theme::{PaintMode, Theme}, UIOwner};
 
 // pub fn compute_val(val: Val, parent_size: f32) -> f32
 // {
@@ -125,6 +125,8 @@ pub fn ensure_aspect_ratio
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct ParentData
 {
+	/// The owner of the parent UI
+	pub parent_ui_owner: Option<UIOwner>,
 	/// The last theme in the tree that isn't Theme::Auto or Theme::Custom.
 	pub last_theme: Theme,
 	/// The parent's theme. (Can be Theme::Auto or Theme::Custom)
@@ -136,10 +138,11 @@ pub struct ParentData
 impl ParentData
 {
 	/// This is mostly for internal use.
-	pub fn new(last_theme: Theme, current_theme: Theme, z_index: i8) -> Self
+	pub fn new(last_theme: Theme, current_theme: Theme, z_index: i8, ui_owner: UIOwner) -> Self
 	{
 		Self
 		{
+			parent_ui_owner: Some(ui_owner),
 			last_theme,
 			current_theme,
 			z_index,
@@ -163,6 +166,7 @@ impl ParentData
 		};
 		Self
 		{
+			parent_ui_owner: self.parent_ui_owner,
 			last_theme,
 			current_theme,
 			z_index: self.z_index,
@@ -176,6 +180,7 @@ impl Default for ParentData
 	{
 		Self
 		{
+			parent_ui_owner: None,
 			last_theme: Theme::Auto,
 			current_theme: Theme::Auto,
 			z_index: 0,
@@ -183,6 +188,9 @@ impl Default for ParentData
 	}
 
 }
+
+pub trait UIOptionalUniqueIdentifier: Default + Reflect + std::any::Any {}
+impl<T: Default + Reflect + std::any::Any> UIOptionalUniqueIdentifier for T {}
 
 pub trait WidgetBuilder<U>
 	where U: Component + Default

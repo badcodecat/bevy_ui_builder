@@ -43,7 +43,7 @@ pub fn resize_text
 	}
 }
 pub struct TextLabel<U, M = ()>
-	where U: Component + Default, M: Default
+	where U: Component + Default, M: Default + std::any::Any + Reflect
 {
 	pub container: Container<U, M>,
 	pub theme: Theme,
@@ -53,7 +53,7 @@ pub struct TextLabel<U, M = ()>
 	pub fixed_text_size: Option<f32>
 }
 
-impl<U: Component + Default, M: Default> TextLabel<U, M>
+impl<U: Component + Default, M: Default + std::any::Any + Reflect> TextLabel<U, M>
 {
 	pub fn new(text: impl Into<String>) -> Self
 	{
@@ -104,7 +104,7 @@ impl<U: Component + Default, M: Default> TextLabel<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Default> Widget for TextLabel<U, M>
+impl<U: Component + Default, M: Default + std::any::Any + Reflect> Widget for TextLabel<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 		{ self.container = self.container.with_paint_mode(paint_mode); self }
@@ -132,7 +132,7 @@ impl<U: Component + Default, M: Default> Widget for TextLabel<U, M>
 		{ self.container = self.container.with_theme(theme); self }
 }
 
-impl<U: Component + Default, M: Default> ThemeApplicator for TextLabel<U, M>
+impl<U: Component + Default, M: Default + std::any::Any + Reflect> ThemeApplicator for TextLabel<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
@@ -196,7 +196,7 @@ pub fn clone_text_bundle(text_bundle: &TextBundle) -> TextBundle
 	}
 }
 
-impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for TextLabel<U, M>
+impl<U: Component + Default, M: Default + 'static + Reflect> Into<Box<dyn WidgetBuilder<U>>> for TextLabel<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{
@@ -204,7 +204,7 @@ impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>
 	}
 }
 
-impl<U: Component + Default, M: Default + 'static> WidgetBuilder<U> for TextLabel<U, M>
+impl<U: Component + Default, M: Default + 'static + Reflect> WidgetBuilder<U> for TextLabel<U, M>
 {
 	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{

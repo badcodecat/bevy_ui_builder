@@ -62,7 +62,7 @@ impl Plugin for UIEventsPlugin
 pub struct UIHierarchy(pub trees::Tree<TypeId>);
 
 // This component describes the closest named element to the entity.
-#[derive(Component)]
+#[derive(Component, Copy, Clone, PartialEq, Debug)]
 pub struct UIOwner(pub TypeId);
 
 pub struct UIBuilderPlugin<D: Component, S: States>

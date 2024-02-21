@@ -250,7 +250,7 @@ impl<U: Component + Default, M: Default> ThemeApplicator for BaseButton<U, M>
 	}
 }
 
-impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for BaseButton<U, M>
+impl<U: Component + Default + std::any::Any, M: std::any::Any + Default> WidgetBuilder<U> for BaseButton<U, M>
 {
 	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
@@ -285,7 +285,15 @@ impl<U: Component + Default, M: std::any::Any + Default> WidgetBuilder<U> for Ba
 				let m_component = *m_component;
 				use bevy::ecs::reflect::ReflectCommandExt;
 				button.insert_reflect(m_component);
+				// Also insert it as an UIOwner
+				let ui_owner = crate::UIOwner(M::default().type_id());
+				button.insert(ui_owner);
 			}
+		}
+		{
+			// Otherwise inherit the parent's UIOwner.
+			let default_owner = crate::UIOwner(U::default().type_id());
+			button.insert(parent_data.parent_ui_owner.unwrap_or(default_owner));
 		}
 
 
