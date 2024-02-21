@@ -12,6 +12,10 @@ impl Plugin for MenuPlugin
 	{
 		app
 		.add_plugins(UIEventsPlugin)
+		// Need to register all reflectable types
+		.register_type::<PlayButton>()
+		.register_type::<NameInput>()
+		.register_type::<QuitButton>()
 		.add_plugins
 		(
 			UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Menu)
@@ -34,13 +38,16 @@ impl Plugin for MenuPlugin
 #[derive(Default, Component)]
 pub struct MyUI;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct PlayButton;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct NameInput;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct QuitButton;
 
 
