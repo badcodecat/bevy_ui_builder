@@ -1,5 +1,5 @@
 #![feature(trivial_bounds)]
-use std::{any::TypeId, collections::HashMap, marker::PhantomData, sync::Mutex};
+use std::{any::TypeId, collections::HashMap, marker::PhantomData, sync::Mutex, sync::Arc};
 use bevy::{ ecs::{schedule::SystemConfigs, system::BoxedSystem}, prelude::* };
 use bevy_ui_navigation::prelude::*;
 
@@ -59,11 +59,22 @@ impl Plugin for UIEventsPlugin
 // This resource describes the UI tree of named elements.
 
 #[derive(Resource)]
-pub struct UIHierarchy(pub trees::Tree<TypeId>);
+pub struct UIHierarchy<U: Component>(pub Arc<Mutex<trees::Tree<TypeId>>>, pub std::marker::PhantomData<U>);
+
+unsafe impl<U: Component> Send for UIHierarchy<U> {}
+unsafe impl<U: Component> Sync for UIHierarchy<U> {}
 
 // This component describes the closest named element to the entity.
 #[derive(Component, Copy, Clone, PartialEq, Debug)]
 pub struct UIOwner(pub TypeId);
+
+impl From<TypeId> for UIOwner
+{
+	fn from(type_id: TypeId) -> Self
+	{
+		Self(type_id)
+	}
+}
 
 pub struct UIBuilderPlugin<D: Component, S: States>
 {
@@ -135,7 +146,7 @@ impl<D: Component, S: States> UIBuilderPlugin<D, S>
 	}
 
 }
-impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
+impl<D: Component + Default + std::any::Any, S: States> Plugin for UIBuilderPlugin<D, S>
 {
 	fn build(&self, app: &mut App)
 	{
@@ -158,6 +169,8 @@ impl<D: Component + Default, S: States> Plugin for UIBuilderPlugin<D, S>
 		let root_builder = self.root_builder.lock().unwrap().take().unwrap();
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder.into_configs())
+			// Insert the UIHierarchy resource.
+			.insert_resource(UIHierarchy::<D>(Arc::new(Mutex::new(trees::Tree::new(D::default().type_id()))), PhantomData))
 			.add_systems
 			(
 				OnEnter(self.state.clone()),

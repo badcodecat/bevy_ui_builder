@@ -213,28 +213,15 @@ impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for TextInput
 
 impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for TextInput<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		let entity = self.label.build(theme_data, parent_data, commands);
+		let entity = self.label.build(ui_tree, theme_data, parent_data, commands);
 		let mut entity = commands.entity(entity);
 		entity
 			.insert(Focusable::default())
 			.insert(EditableText::default())
 			.insert(EditCursor::default())
 			;
-		// Check if M is a Component, and if so, insert it.
-		use std::any::Any;
-		let m_any: Box<dyn Any> = Box::new(M::default());
-		let m_any_component_check: Box<dyn Any> = Box::new(M::default());
-		if m_any_component_check.downcast::<Box<dyn Component<Storage = bevy::ecs::storage::Table>>>().is_ok()
-		{
-			if let Ok(m_component) = m_any.downcast::<Box<dyn Reflect>>()
-			{
-				let m_component = *m_component;
-				use bevy::ecs::reflect::ReflectCommandExt;
-				entity.insert_reflect(m_component);
-			}
-		}
 		if let Some(placeholder) = &self.placeholder
 		{ entity.insert(PlaceholderText { text: placeholder.clone() }); }
 		if self.allows_newlines

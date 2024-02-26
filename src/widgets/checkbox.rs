@@ -98,14 +98,14 @@ impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for CheckBox<
 
 impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for CheckBox<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Apply the initial checked state.
 		// TODO: This code is ugly, can pretty?
 		self.text_button.label.label.text.sections[0].value = if self.initial_checked_state { "X" } else { " " }.to_string();
 
 		// Build the button.
-		let button_entity = self.text_button.build(theme_data, parent_data, commands);
+		let button_entity = self.text_button.build(ui_tree, theme_data, parent_data, commands);
 
 		// Add the checkbox state.
 		commands.entity(button_entity)

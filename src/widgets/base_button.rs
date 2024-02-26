@@ -250,16 +250,34 @@ impl<U: Component + Default, M: Default> ThemeApplicator for BaseButton<U, M>
 	}
 }
 
-impl<U: Component + Default + std::any::Any, M: std::any::Any + Default> WidgetBuilder<U> for BaseButton<U, M>
+impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for BaseButton<U, M>
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
+		// Check if M is a Component
+		let m_component_check: Box<dyn Reflect> = Box::new(M::default());
+		let m_component_check = !m_component_check.represents::<()>();
+		let mut parent_data = parent_data;
+		if m_component_check
+		{
+			// Update the tree
+			for mut node in ui_tree.0.lock().unwrap().iter_mut()
+			{
+				if *node.data() == parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0
+				{
+					node.push_back(trees::Tree::new(M::default().type_id()));
+				}
+			}
+			// Update the ParentData
+			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();
+			println!("Parent UI Owner: {:?}", parent_data.parent_ui_owner);
+		}
 		// Apply theming.
 		self.apply_theme(parent_data.resolve_theme(), theme);
 
 		// Build children.
 		let new_parent_data = parent_data.from_current(self.theme);
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, new_parent_data, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(ui_tree, theme, new_parent_data, commands)).collect();
 
 		let mut button = commands.spawn(self.button_bundle.clone());
 		if let Some(aspect_ratio) = self.aspect_ratio
@@ -274,26 +292,24 @@ impl<U: Component + Default + std::any::Any, M: std::any::Any + Default> WidgetB
 			.push_children(&children)
 			;
 
-				// Check if M is a Component, and if so, insert it.
-		use std::any::Any;
-		let m_any: Box<dyn Any> = Box::new(M::default());
-		let m_any_component_check: Box<dyn Any> = Box::new(M::default());
-		if m_any_component_check.downcast::<Box<dyn Component<Storage = bevy::ecs::storage::Table>>>().is_ok()
+		if m_component_check
 		{
-			if let Ok(m_component) = m_any.downcast::<Box<dyn Reflect>>()
-			{
-				let m_component = *m_component;
+				let m_component: Box<dyn Reflect> = Box::new(M::default());
 				use bevy::ecs::reflect::ReflectCommandExt;
 				button.insert_reflect(m_component);
 				// Also insert it as an UIOwner
 				let ui_owner = crate::UIOwner(M::default().type_id());
 				button.insert(ui_owner);
-			}
+
+			// else { panic!("M is a Component, but it's not a Reflect. This is not supported."); }
 		}
+		else
 		{
 			// Otherwise inherit the parent's UIOwner.
 			let default_owner = crate::UIOwner(U::default().type_id());
-			button.insert(parent_data.parent_ui_owner.unwrap_or(default_owner));
+			let owner = parent_data.parent_ui_owner.unwrap_or(default_owner);
+			button.insert(owner);
+			parent_data.parent_ui_owner = Some(owner);
 		}
 
 
@@ -303,7 +319,7 @@ impl<U: Component + Default + std::any::Any, M: std::any::Any + Default> WidgetB
 	}
 }
 
-impl<U: Component + Default, M: Default + 'static> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

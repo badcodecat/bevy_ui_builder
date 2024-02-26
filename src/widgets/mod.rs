@@ -195,12 +195,12 @@ impl<T: Default + Reflect + std::any::Any> UIOptionalUniqueIdentifier for T {}
 pub trait WidgetBuilder<U>
 	where U: Component + Default
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity;
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity;
 }
 
 impl<U: Component + Default> WidgetBuilder<U> for Entity
 {
-	fn build(&mut self, _: &crate::theme::ThemeData, _parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, _:&mut crate::UIHierarchy<U>, _: &crate::theme::ThemeData, _parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		commands.entity(*self).insert(U::default()).id()
 	}

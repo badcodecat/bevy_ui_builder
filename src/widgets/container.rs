@@ -182,31 +182,41 @@ impl<U: Component + Default, M: UIOptionalUniqueIdentifier> ThemeApplicator for 
 
 impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for Container<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, mut parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &crate::theme::ThemeData, mut parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Check if M is a Component
-		use std::any::Any;
-		println!("Building a container with M: {}", std::any::type_name::<M>());
-		let m_any: Box<dyn Any> = Box::new(M::default());
-		let m_any_component_check: Box<dyn Reflect> = Box::new(M::default());
-		let m_any_component_check = !m_any_component_check.represents::<()>();
-		if m_any_component_check
+		let m_component_check: Box<dyn Reflect> = Box::new(M::default());
+		let m_component_check = !m_component_check.represents::<()>();
+		if m_component_check
 		{
+			// Update the tree
+			if parent_data.parent_ui_owner.is_none()
+			{
+				// If the parent UI Owner is None, then we need to add a new node to the tree.
+				ui_tree.0.lock().unwrap().push_back(trees::Tree::new(M::default().type_id()));
+			}
+			else
+			{
+				for mut node in ui_tree.0.lock().unwrap().bfs_mut().iter
+				{
+					let node = node.
+					if *node.data() == parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0
+					{
+						node.push_back(trees::Tree::new(M::default().type_id()));
+					}
+				}
+			}
+
 			// Update the ParentData
 			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();
 			println!("Parent UI Owner: {:?}", parent_data.parent_ui_owner);
-		}
-
-		if !m_any_component_check && std::any::type_name::<M>() != "()"
-		{
-			panic!("M is not a Component, but it's not (). This is not supported.");
 		}
 
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
 		let new_parent_data = parent_data.from_current(self.theme);
 
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_data, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(ui_tree, theme_data, new_parent_data, commands)).collect();
 		let mut this_container = commands.spawn(self.node_bundle.clone()); // TODO: See if we can avoid cloning the node bundle.
 
 		if let Some(aspect_ratio) = self.aspect_ratio
@@ -214,7 +224,7 @@ impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> Widg
 			this_container.insert(super::AspectRatio(aspect_ratio));
 		}
 
-		if m_any_component_check
+		if m_component_check
 		{
 				let m_component: Box<dyn Reflect> = Box::new(M::default());
 				use bevy::ecs::reflect::ReflectCommandExt;

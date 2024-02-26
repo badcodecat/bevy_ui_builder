@@ -56,13 +56,13 @@ impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for TextButto
 
 impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for TextButton<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Build the button.
-		let button_entity = self.base_button.build(theme_data, parent_data, commands);
+		let button_entity = self.base_button.build(ui_tree, theme_data, parent_data, commands);
 
 		// Build the label.
-		let label_entity = self.label.build(theme_data, parent_data, commands);
+		let label_entity = self.label.build(ui_tree, theme_data, parent_data, commands);
 
 		// Add the label to the button.
 		commands.entity(button_entity).push_children(&[label_entity]);

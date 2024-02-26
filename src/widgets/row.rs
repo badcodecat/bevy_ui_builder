@@ -55,9 +55,9 @@ impl<U: Component + Default, M: Default + std::any::Any + Reflect> super::Widget
 
 impl<U: Component + Default, M: Default + std::any::Any + Reflect> super::WidgetBuilder<U> for Row<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		self.container.build(theme_data, parent_data, commands)
+		self.container.build(ui_tree, theme_data, parent_data, commands)
 	}
 }
 

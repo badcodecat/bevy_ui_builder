@@ -206,7 +206,7 @@ impl<U: Component + Default, M: Default + 'static + Reflect> Into<Box<dyn Widget
 
 impl<U: Component + Default, M: Default + 'static + Reflect> WidgetBuilder<U> for TextLabel<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
@@ -217,7 +217,7 @@ impl<U: Component + Default, M: Default + 'static + Reflect> WidgetBuilder<U> fo
 			section.style.font_size = font_size;
 		}
 
-		let container = self.container.build(theme_data, parent_data, commands);
+		let container = self.container.build(ui_tree, theme_data, parent_data, commands);
 
 		let mut container = commands.entity(container);
 		if self.fixed_text_size.is_none()
