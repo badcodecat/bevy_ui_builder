@@ -189,22 +189,24 @@ impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> Widg
 		let m_component_check = !m_component_check.represents::<()>();
 		if m_component_check
 		{
+			let mut ui_tree = ui_tree.0.lock().unwrap();
 			// Update the tree
 			if parent_data.parent_ui_owner.is_none()
 			{
 				// If the parent UI Owner is None, then we need to add a new node to the tree.
-				ui_tree.0.lock().unwrap().push_back(trees::Tree::new(M::default().type_id()));
+				ui_tree.new_node(M::default().type_id());
 			}
 			else
 			{
-				for mut node in ui_tree.0.lock().unwrap().bfs_mut().iter
-				{
-					let node = node.
-					if *node.data() == parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0
-					{
-						node.push_back(trees::Tree::new(M::default().type_id()));
-					}
-				}
+				let parent_node_typeid = parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0;
+				let parent_node = ui_tree
+					.iter()
+					.filter(|node| !node.is_removed())
+					.find(|node| *node.get() == parent_node_typeid)
+					.expect("Parent node not found in the UI Tree.");
+				let parent_node = ui_tree.get_node_id(parent_node).expect("Parent node not found in the UI Tree.");
+				let new_node = ui_tree.new_node(M::default().type_id());
+				parent_node.append(new_node, &mut ui_tree);
 			}
 
 			// Update the ParentData

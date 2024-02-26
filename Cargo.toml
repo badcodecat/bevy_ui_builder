@@ -10,7 +10,7 @@ bevy-ui-navigation = "0.33.1"
 ahash = "0.7.8" # Workaround for some rust nightly issue, we don't actually care about ahash
 dark-light = "1.0.0"
 once_cell = "1.18.0"
-trees = "0.4.2"
+indextree = "4.6.0"
 
 [dependencies.bevy]
 version = "0.12.1"

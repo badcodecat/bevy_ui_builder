@@ -59,10 +59,10 @@ impl Plugin for UIEventsPlugin
 // This resource describes the UI tree of named elements.
 
 #[derive(Resource)]
-pub struct UIHierarchy<U: Component>(pub Arc<Mutex<trees::Tree<TypeId>>>, pub std::marker::PhantomData<U>);
+pub struct UIHierarchy<U: Component>(pub Arc<Mutex<indextree::Arena<TypeId>>>, pub std::marker::PhantomData<U>);
 
-unsafe impl<U: Component> Send for UIHierarchy<U> {}
-unsafe impl<U: Component> Sync for UIHierarchy<U> {}
+// unsafe impl<U: Component> Send for UIHierarchy<U> {}
+// unsafe impl<U: Component> Sync for UIHierarchy<U> {}
 
 // This component describes the closest named element to the entity.
 #[derive(Component, Copy, Clone, PartialEq, Debug)]
@@ -167,10 +167,12 @@ impl<D: Component + Default + std::any::Any, S: States> Plugin for UIBuilderPlug
 		let mut unlocked_builders = self.builders.lock().unwrap();
 		// let root_builder = unlocked_builders.remove(&root_component_id).unwrap();
 		let root_builder = self.root_builder.lock().unwrap().take().unwrap();
+		let mut ui_tree = indextree::Arena::new();
+		ui_tree.new_node(D::default().type_id());
 		app
 			.add_systems(OnEnter(self.state.clone()), root_builder.into_configs())
 			// Insert the UIHierarchy resource.
-			.insert_resource(UIHierarchy::<D>(Arc::new(Mutex::new(trees::Tree::new(D::default().type_id()))), PhantomData))
+			.insert_resource(UIHierarchy::<D>(Arc::new(Mutex::new(ui_tree)), PhantomData))
 			.add_systems
 			(
 				OnEnter(self.state.clone()),
