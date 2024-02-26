@@ -194,20 +194,19 @@ impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> Widg
 			if parent_data.parent_ui_owner.is_none()
 			{
 				// If the parent UI Owner is None, then we need to add a new node to the tree.
-				ui_tree.new_node(M::default().type_id());
+				ui_tree.new_node(U::default().type_id());
+				parent_data.parent_ui_owner = Some(U::default().type_id().into());
 			}
-			else
-			{
-				let parent_node_typeid = parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0;
-				let parent_node = ui_tree
-					.iter()
-					.filter(|node| !node.is_removed())
-					.find(|node| *node.get() == parent_node_typeid)
-					.expect("Parent node not found in the UI Tree.");
-				let parent_node = ui_tree.get_node_id(parent_node).expect("Parent node not found in the UI Tree.");
-				let new_node = ui_tree.new_node(M::default().type_id());
-				parent_node.append(new_node, &mut ui_tree);
-			}
+
+			let parent_node_typeid = parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0;
+			let parent_node = ui_tree
+				.iter()
+				.filter(|node| !node.is_removed())
+				.find(|node| *node.get() == parent_node_typeid)
+				.expect("Parent node not found in the UI Tree.");
+			let parent_node = ui_tree.get_node_id(parent_node).expect("Parent node not found in the UI Tree.");
+			let new_node = ui_tree.new_node(M::default().type_id());
+			parent_node.append(new_node, &mut ui_tree);
 
 			// Update the ParentData
 			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();

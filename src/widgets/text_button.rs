@@ -9,7 +9,7 @@ pub struct TextButton<U, M = ()>
 	where U: Component + Default, M: UIOptionalUniqueIdentifier
 {
 	pub base_button: BaseButton<U, M>,
-	pub label: TextLabel<U, M>,
+	pub label: TextLabel<U, ()>,
 }
 
 impl<U: Component + Default, M: UIOptionalUniqueIdentifier> TextButton<U, M>
