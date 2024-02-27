@@ -25,7 +25,7 @@ fn main()
 		.run();
 }
 
-fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
+fn build_root(mut commands: Commands, mut ui_tree: ResMut<UIHierarchy<MyUI>>, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
@@ -44,6 +44,6 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
-		.build(&theme.0, ParentData::default(), &mut commands)
+		.build(&mut ui_tree, &theme.0, ParentData::default(), &mut commands)
 		;
 }

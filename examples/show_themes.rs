@@ -26,7 +26,7 @@ fn main()
 #[derive(Default, Component)]
 pub struct MyUI;
 
-fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
+fn build_root(mut commands: Commands, mut ui_tree: ResMut<UIHierarchy<MyUI>>, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
@@ -55,7 +55,7 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(column_primary)
 		.push(column_secondary)
 		;
-	root.build(&theme.0, ParentData::default(), &mut commands);
+	root.build(&mut ui_tree, &theme.0, ParentData::default(), &mut commands);
 }
 
 fn build_sample_widgets() -> impl Into<Box<dyn WidgetBuilder<MyUI>>>

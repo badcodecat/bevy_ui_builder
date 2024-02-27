@@ -10,3 +10,4 @@ pub use crate::theme::CurrentThemeData;
 pub use crate::theme::Theme;
 pub use crate::UIBuilderPlugin;
 pub use crate::UIEventsPlugin;
+pub use crate::UIHierarchy;
