@@ -73,7 +73,7 @@ impl<U: Component + Default, M: Default + std::any::Any + Reflect> TextLabel<U, 
 			{
 				text: Text
 				{
-					alignment: TextAlignment::Center,
+					justify: JustifyText::Center,
 					sections: vec![text],
 					..Default::default()
 				},

@@ -54,14 +54,14 @@ pub fn send_pressed_on_keyboard
 
 (
 	mut button_query: Query<(&Focusable, &mut Interaction)>,
-	keyboard_input: Res<Input<KeyCode>>,
+	keyboard_input: Res<ButtonInput<KeyCode>>,
 )
 {
 	for (focus, mut interaction) in button_query.iter_mut()
 	{
 		if focus.state() != FocusState::Focused
 			{ continue; }
-		if keyboard_input.just_pressed(KeyCode::Return)
+		if keyboard_input.just_pressed(KeyCode::Enter)
 		{
 			*interaction = Interaction::Pressed;
 		}

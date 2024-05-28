@@ -48,16 +48,18 @@ use crate::{theme::{PaintMode, Theme}, UIOwner};
 // 		Val::Auto
 // 	}
 // }
-pub fn resize_on_window_change
-(
-	_window_change_query: Query<((), Changed<Window>)>, // We only need to know if the window changed.
-	mut resize_writer: EventWriter<TextResizeEvent>,
-	mut aspect_ratio_writer: EventWriter<AspectRatioEvent>
-)
-{
-	resize_writer.send(TextResizeEvent);
-	aspect_ratio_writer.send(AspectRatioEvent);
-}
+
+// ! I'm not sure what this system used to do, but as of Bevy 0.13, it's no longer working (Changed<Window> gives an error).
+// pub fn resize_on_window_change
+// (
+// 	_window_change_query: Query<((), Changed<Window>)>, // We only need to know if the window changed.
+// 	mut resize_writer: EventWriter<TextResizeEvent>,
+// 	mut aspect_ratio_writer: EventWriter<AspectRatioEvent>
+// )
+// {
+// 	resize_writer.send(TextResizeEvent);
+// 	aspect_ratio_writer.send(AspectRatioEvent);
+// }
 
 pub fn resize_on_window_resize
 (

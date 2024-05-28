@@ -28,7 +28,7 @@ impl Plugin for UIEventsPlugin
 				(
 					widgets::text_label::resize_text,
 					widgets::resize_on_window_resize,
-					widgets::resize_on_window_change
+					// widgets::resize_on_window_change // System no longer works.
 				)
 			)
 			.add_systems(Update, widgets::base_button::send_pressed_on_keyboard)
@@ -197,7 +197,7 @@ impl<D: Component + Default + std::any::Any, S: States> Plugin for UIBuilderPlug
 						resize_local.0 += 1;
 					}
 				)
-					.run_if(resource_exists::<ResizeLocal::<D>>())
+					.run_if(resource_exists::<ResizeLocal::<D>>)
 			)
 			.add_systems
 			(
@@ -232,7 +232,7 @@ mod tests
 		}
 		let mut app = App::new();
 		test::PretendWindowPlugin.build(&mut app); // This is so we don't get unrelated panics
-		app.add_state::<TestApplicationState>();
+		app.init_state::<TestApplicationState>();
 		#[derive(Default, Component)]
 		pub struct TestUI;
 		#[derive(Default, Resource)]

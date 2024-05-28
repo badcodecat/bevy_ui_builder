@@ -54,14 +54,14 @@ pub fn handle_text_input
 (
 	mut query: Query<(&mut EditableText, &mut EditCursor, &Focusable, Option<&AllowsNewlines>)>,
 	mut text_input: EventReader<ReceivedCharacter>,
-	keyboard_input: ResMut<Input<KeyCode>>,
+	keyboard_input: ResMut<ButtonInput<KeyCode>>,
 )
 {
 	for (mut text, mut cursor, focusable, allows_newlines) in query.iter_mut()
 	{
 		if focusable.state() != FocusState::Focused
 			{ continue; }
-		if keyboard_input.just_pressed(KeyCode::Back)
+		if keyboard_input.just_pressed(KeyCode::Backspace)
 		{
 			if cursor.position > 0
 			{
@@ -76,21 +76,21 @@ pub fn handle_text_input
 				text.text.remove(cursor.position);
 			}
 		}
-		else if keyboard_input.just_pressed(KeyCode::Left)
+		else if keyboard_input.just_pressed(KeyCode::ArrowLeft)
 		{
 			if cursor.position > 0
 			{
 				cursor.position -= 1;
 			}
 		}
-		else if keyboard_input.just_pressed(KeyCode::Right)
+		else if keyboard_input.just_pressed(KeyCode::ArrowRight)
 		{
 			if cursor.position < text.text.len()
 			{
 				cursor.position += 1;
 			}
 		}
-		else if keyboard_input.just_pressed(KeyCode::Return)
+		else if keyboard_input.just_pressed(KeyCode::Enter)
 		{
 			if allows_newlines.is_some()
 			{
@@ -108,10 +108,19 @@ pub fn handle_text_input
 		}
 		for event in text_input.read()
 		{
-			if event.char.is_control()
-				{ continue; }
-			text.text.insert(cursor.position, event.char);
-			cursor.position += 1;
+			// if event.char.chars().count() != 1
+			// {
+			// 	warn!("ReceivedCharacter event contained more than one character, skipping.");
+			// 	continue;
+			// }
+			// let character : char = event.char.chars().next().expect("ReceivedCharacter event contained no characters.");
+			for character in event.char.chars()
+			{
+				if character.is_control()
+					{ continue; }
+				text.text.insert(cursor.position, character);
+				cursor.position += 1;
+			}
 		}
 	}
 }
