@@ -12,7 +12,7 @@ fn main()
 {
 	App::new()
 		.add_plugins(DefaultPlugins)
-		.add_state::<ApplicationState>()
+		.init_state::<ApplicationState>()
 		.add_plugins(UIEventsPlugin)
 		.add_plugins
 		(

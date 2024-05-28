@@ -15,8 +15,8 @@ fn main()
 {
 	App::new()
 		.add_plugins(DefaultPlugins)
-		.add_state::<ApplicationState>()
-        .add_plugins(UIEventsPlugin)
+		.init_state::<ApplicationState>()
+		.add_plugins(UIEventsPlugin)
 		.add_plugins
 		(
 			bevy_ui_builder::UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Startup)
