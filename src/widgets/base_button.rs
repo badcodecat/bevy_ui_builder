@@ -8,22 +8,49 @@ use crate::{theme::{ThemeData, ThemeApplicator, CurrentTheme, ShiftColour}, prel
 /// Indicates that this button should have effects applied to it when hovered over or pressed.
 pub struct AutoStyledButton;
 
+#[derive(Default, Component)]
+pub struct FocusedImage(pub UiImage);
+
+#[derive(Default, Component)]
+pub struct ActiveImage(pub UiImage);
+
 pub fn style_button_on_focus<U: Component + Default>
 
 (
-	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Focusable), (With<AutoStyledButton>, Changed<Focusable>)>,
+	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Focusable, &mut UiImage, Option<&FocusedImage>, Option<&ActiveImage>), (With<AutoStyledButton>, Changed<Focusable>)>,
 	theme_data: Res<CurrentThemeData<U>>,
 )
 {
 	let theme_data = &theme_data.0;
-	for (mut background_colour, current_theme, focus) in button_query.iter_mut()
+	for (mut background_colour, current_theme, focus, mut ui_image, focused_image, active_image) in button_query.iter_mut()
+
 	{
 		let current_theme = current_theme.0;
 		let current_background_colour = current_theme.get_background(&theme_data);
 		match focus.state()
 		{
-			FocusState::Focused => *background_colour = current_background_colour.lighten(0.1).into(),
-			FocusState::Active => *background_colour = current_background_colour.lighten(0.25).into(),
+			FocusState::Focused =>
+			{
+				if let Some(focused_image) = focused_image
+				{
+					*ui_image = focused_image.0.clone();
+				}
+				else
+				{
+					*background_colour = current_background_colour.lighten(0.1).into();
+				}
+			},
+			FocusState::Active =>
+			{
+				if let Some(active_image) = active_image
+				{
+					*ui_image = active_image.0.clone();
+				}
+				else
+				{
+					*background_colour = current_background_colour.lighten(0.25).into();
+				}
+			},
 			_ => *background_colour = current_background_colour.into(),
 		}
 	}
@@ -82,6 +109,10 @@ pub struct BaseButton<U, M = ()>
 
 	pub aspect_ratio: Option<f32>,
 
+	pub image: Option<UiImage>,
+	pub focused_image: Option<UiImage>,
+	pub active_image: Option<UiImage>,
+
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	phantom: std::marker::PhantomData<M>,
 }
@@ -114,9 +145,31 @@ impl<U: Component + Default, M: Default> BaseButton<U, M>
 
 			aspect_ratio: None,
 
+			image: None,
+			focused_image: None,
+			active_image: None,
+
 			children: Vec::new(),
 			phantom: std::marker::PhantomData,
 		}
+	}
+
+	pub fn with_image(mut self, image: UiImage) -> Self
+	{
+		self.image = Some(image);
+		self
+	}
+
+	pub fn with_focused_image(mut self, image: UiImage) -> Self
+	{
+		self.focused_image = Some(image);
+		self
+	}
+
+	pub fn with_active_image(mut self, image: UiImage) -> Self
+	{
+		self.active_image = Some(image);
+		self
 	}
 
 	pub fn push(mut self, child: impl Into<Box<dyn WidgetBuilder<U>>>) -> Self
@@ -321,6 +374,20 @@ impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> Widg
 			parent_data.parent_ui_owner = Some(owner);
 		}
 
+		if let Some(image) = &self.image
+		{
+			button.insert(image.clone());
+		}
+
+		if let Some(focused_image) = &self.focused_image
+		{
+			button.insert(FocusedImage(focused_image.clone()));
+		}
+
+		if let Some(active_image) = &self.active_image
+		{
+			button.insert(ActiveImage(active_image.clone()));
+		}
 
 		if self.auto_style
 			{ button.insert(AutoStyledButton); }
