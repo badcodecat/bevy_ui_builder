@@ -4,7 +4,7 @@ This is my preferred way of creating UI. It is based loosely on [iced](https://g
 This is in very early development, use at your own risk. At the moment there is little/no documentation.
 
 # Usage
-Right now this works with bevy version 0.12.1
+Right now this works with bevy version 0.13
 
 Add `bevy_ui_builder = { git = "https://github.com/badcodecat/bevy_ui_builder.git" }` to your Cargo.toml.
 
