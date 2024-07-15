@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ui_navigation::prelude::*;
+use bevy_alt_ui_navigation_lite::prelude::*;
 
 use super::*;
 use crate::{theme::{ThemeData, ThemeApplicator, CurrentTheme, ShiftColour}, prelude::CurrentThemeData};

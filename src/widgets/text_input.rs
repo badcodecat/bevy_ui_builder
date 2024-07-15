@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 // Really a TextInput is just a label with extra steps
-use bevy_ui_navigation::prelude::*;
+use bevy_alt_ui_navigation_lite::prelude::*;
 
 use crate::theme::ThemeData;
 

@@ -1,7 +1,7 @@
 #![feature(trivial_bounds)]
 use std::{any::TypeId, collections::HashMap, marker::PhantomData, sync::Mutex, sync::Arc};
 use bevy::{ ecs::{schedule::SystemConfigs, system::BoxedSystem}, prelude::* };
-use bevy_ui_navigation::prelude::*;
+use bevy_alt_ui_navigation_lite::prelude::*;
 
 pub mod prelude;
 pub mod widgets;
@@ -45,7 +45,7 @@ impl Plugin for UIEventsPlugin
 			.add_plugins(DefaultNavigationPlugins)
 			.insert_resource
 			(
-				bevy_ui_navigation::systems::InputMapping
+				bevy_alt_ui_navigation_lite::systems::InputMapping
 				{
 					keyboard_navigation: true,
 					focus_follows_mouse: true,
