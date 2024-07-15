@@ -210,7 +210,6 @@ impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> Widg
 
 			// Update the ParentData
 			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();
-			println!("Parent UI Owner: {:?}", parent_data.parent_ui_owner);
 		}
 
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
