@@ -232,6 +232,7 @@ mod tests
 		}
 		let mut app = App::new();
 		test::PretendWindowPlugin.build(&mut app); // This is so we don't get unrelated panics
+		bevy::state::app::StatesPlugin.build(&mut app); // States are no longer a default part of bevy, so we need to add it manually (bevy 0.14)
 		app.init_state::<TestApplicationState>();
 		#[derive(Default, Component)]
 		pub struct TestUI;
@@ -247,7 +248,7 @@ mod tests
 		plugin.build(&mut app);
 		UIEventsPlugin.build(&mut app);
 		app.update();
-		let test_resource = app.world.get_resource::<TestResource>().expect("TestResource not inserted");
+		let test_resource = app.world_mut().get_resource::<TestResource>().expect("TestResource not inserted");
 		assert_eq!(test_resource.0, MAGIC_NUMBER);
 	}
 }

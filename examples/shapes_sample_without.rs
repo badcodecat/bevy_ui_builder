@@ -45,7 +45,7 @@ fn setup
 				align_items: AlignItems::Center,
 				..Default::default()
 			},
-			background_color: Color::RED.into(),
+			background_color: bevy::color::palettes::basic::RED.into(),
 			..Default::default()
 		}
 	).id();
@@ -62,7 +62,7 @@ fn setup
 				align_items: AlignItems::Center,
 				..Default::default()
 			},
-			background_color: Color::GREEN.into(),
+			background_color: bevy::color::palettes::basic::LIME.into(),
 			..Default::default()
 		}
 	).id();

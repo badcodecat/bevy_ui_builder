@@ -100,6 +100,6 @@ fn quit_on_press(interaction_query: Query<&Interaction, (Changed<Interaction>, W
 {
 	if let Ok(Interaction::Pressed) = interaction_query.get_single()
 	{
-		app_exit_events.send(bevy::app::AppExit);
+		app_exit_events.send(bevy::app::AppExit::Success);
 	}
 }

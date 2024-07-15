@@ -31,9 +31,9 @@ fn build_root(mut commands: Commands, mut ui_tree: ResMut<UIHierarchy<MyUI>>, th
 		.insert(MyUI);
 	let column = bevy_ui_builder::widgets::Column::<MyUI>::new();
 	let node1 = bevy_ui_builder::widgets::Column::<_>::new()
-		.with_colour(Color::RED, Color::NONE);
+		.with_colour(bevy::color::palettes::basic::RED.into(), Color::NONE);
 	let node2 = bevy_ui_builder::widgets::Column::<_>::new()
-		.with_colour(Color::GREEN, Color::NONE);
+		.with_colour(bevy::color::palettes::basic::LIME.into(), Color::NONE);
 	let column = column
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(node1)

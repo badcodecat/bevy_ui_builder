@@ -143,11 +143,11 @@ pub struct CurrentThemeData<W>(pub ThemeData, pub PhantomData<W>);
 pub struct CurrentTheme<W>(pub Theme, pub PhantomData<W>);
 
 /// See https://m3.material.io/foundations/accessible-design/patterns#c06040d0-f7dd-43d8-af92-384bbb3b0544
-pub const CONTRAST_ACCESIBILITY_RATIO: f64 = 4.5;
+pub const CONTRAST_ACCESSIBILITY_RATIO: f64 = 4.5;
 
 pub fn is_contrast_accessible(color1: Color, color2: Color) -> bool
 {
-	get_contrast_ratio(color1, color2) >= CONTRAST_ACCESIBILITY_RATIO
+	get_contrast_ratio(color1, color2) >= CONTRAST_ACCESSIBILITY_RATIO
 }
 pub trait ShiftColour
 {
@@ -159,14 +159,14 @@ impl ShiftColour for Color
 {
 	fn lighten(self, amount: f32) -> Self
 	{
-		let Color::Hsla { hue, saturation, lightness, alpha } = self.as_hsla()
+		let Hsla { hue, saturation, lightness, alpha } = self.into()
 			else { unreachable!("Color::as_hsla() returned a non-HSLA color") };
 		Color::hsla(hue, saturation, lightness + amount, alpha)
 	}
 
 	fn darken(self, amount: f32) -> Self
 	{
-		let Color::Hsla { hue, saturation, lightness, alpha } = self.as_hsla()
+		let Hsla { hue, saturation, lightness, alpha } = self.into()
 			else { unreachable!("Color::as_hsla() returned a non-HSLA color") };
 		Color::hsla(hue, saturation, lightness - amount, alpha)
 	}
@@ -195,11 +195,11 @@ pub mod colours
 	use once_cell::sync::Lazy;
 	use super::*;
 	// Primary, HEX: #202030
-	pub static RAISIN_BLACK: Lazy<Color> = Lazy::new(|| Color::hex("202030").unwrap());
+	pub static RAISIN_BLACK: Lazy<Color> = Lazy::new(|| Srgba::hex("202030").unwrap().into());
 	// Secondary, HEX: #39304A
-	pub static  ENGLISH_VIOLET: Lazy<Color> = Lazy::new(|| Color::hex("39304A").unwrap());
+	pub static  ENGLISH_VIOLET: Lazy<Color> = Lazy::new(|| Srgba::hex("39304A").unwrap().into());
 	// Tertiary, HEX: #635C51
-	pub static  WALNUT_BROWN: Lazy<Color> = Lazy::new(|| Color::hex("635C51").unwrap());
+	pub static  WALNUT_BROWN: Lazy<Color> = Lazy::new(|| Srgba::hex("635C51").unwrap().into());
 }
 
 
@@ -211,7 +211,7 @@ pub fn get_contrast_ratio(color1: Color, color2: Color) -> f64
 	// Convert RGBA values to relative luminance
 	fn relative_luminance(color: Color) -> f64
 	{
-		let Color::Rgba { red, green, blue, .. } = color.as_rgba()
+		let Srgba { red, green, blue, .. } = color.into()
 			else { unreachable!("Color is not RGBA") };
 		let r = red as f64;
 		let g = green as f64;
@@ -224,15 +224,15 @@ pub fn get_contrast_ratio(color1: Color, color2: Color) -> f64
 
 	fn mix_colors(color1: Color, color2: Color) -> Color
 	{
-		let Color::Rgba { red: r1, green: g1, blue: b1, alpha: a1 } = color1.as_rgba()
+		let Srgba { red: r1, green: g1, blue: b1, alpha: a1 } = color1.into()
 			else { unreachable!("Color is not RGBA") };
-		let Color::Rgba { red: r2, green: g2, blue: b2, alpha: a2 } = color2.as_rgba()
+		let Srgba { red: r2, green: g2, blue: b2, alpha: a2 } = color2.into()
 			else { unreachable!("Color is not RGBA") };
 		let r = ( r1 + ( r2 * ( 1.0 - a1 ) ) ) / ( a1 + a2 * ( 1.0 - a1 ) );
 		let g = ( g1 + ( g2 * ( 1.0 - a1 ) ) ) / ( a1 + a2 * ( 1.0 - a1 ) );
 		let b = ( b1 + ( b2 * ( 1.0 - a1 ) ) ) / ( a1 + a2 * ( 1.0 - a1 ) );
 		let a = a1;
-		Color::Rgba { red: r, green: g, blue: b, alpha: a }
+		Srgba { red: r, green: g, blue: b, alpha: a }.into()
 	}
 
 		// Calculate the contrast ratio with color mixing
