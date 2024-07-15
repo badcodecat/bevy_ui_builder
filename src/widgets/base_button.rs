@@ -8,22 +8,49 @@ use crate::{theme::{ThemeData, ThemeApplicator, CurrentTheme, ShiftColour}, prel
 /// Indicates that this button should have effects applied to it when hovered over or pressed.
 pub struct AutoStyledButton;
 
+#[derive(Default, Component)]
+pub struct FocusedImage(pub UiImage);
+
+#[derive(Default, Component)]
+pub struct ActiveImage(pub UiImage);
+
 pub fn style_button_on_focus<U: Component + Default>
 
 (
-	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Focusable), (With<AutoStyledButton>, Changed<Focusable>)>,
+	mut button_query: Query<(&mut BackgroundColor, &CurrentTheme<U>, &Focusable, &mut UiImage, Option<&FocusedImage>, Option<&ActiveImage>), (With<AutoStyledButton>, Changed<Focusable>)>,
 	theme_data: Res<CurrentThemeData<U>>,
 )
 {
 	let theme_data = &theme_data.0;
-	for (mut background_colour, current_theme, focus) in button_query.iter_mut()
+	for (mut background_colour, current_theme, focus, mut ui_image, focused_image, active_image) in button_query.iter_mut()
+
 	{
 		let current_theme = current_theme.0;
 		let current_background_colour = current_theme.get_background(&theme_data);
 		match focus.state()
 		{
-			FocusState::Focused => *background_colour = current_background_colour.lighten(0.1).into(),
-			FocusState::Active => *background_colour = current_background_colour.lighten(0.25).into(),
+			FocusState::Focused =>
+			{
+				if let Some(focused_image) = focused_image
+				{
+					*ui_image = focused_image.0.clone();
+				}
+				else
+				{
+					*background_colour = current_background_colour.lighten(0.1).into();
+				}
+			},
+			FocusState::Active =>
+			{
+				if let Some(active_image) = active_image
+				{
+					*ui_image = active_image.0.clone();
+				}
+				else
+				{
+					*background_colour = current_background_colour.lighten(0.25).into();
+				}
+			},
 			_ => *background_colour = current_background_colour.into(),
 		}
 	}
@@ -54,22 +81,22 @@ pub fn send_pressed_on_keyboard
 
 (
 	mut button_query: Query<(&Focusable, &mut Interaction)>,
-	keyboard_input: Res<Input<KeyCode>>,
+	keyboard_input: Res<ButtonInput<KeyCode>>,
 )
 {
 	for (focus, mut interaction) in button_query.iter_mut()
 	{
 		if focus.state() != FocusState::Focused
 			{ continue; }
-		if keyboard_input.just_pressed(KeyCode::Return)
+		if keyboard_input.just_pressed(KeyCode::Enter)
 		{
 			*interaction = Interaction::Pressed;
 		}
 	}
 }
 
-pub struct BaseButton<U, M>
-	where U: Component + Default, M: Component + Default
+pub struct BaseButton<U, M = ()>
+	where U: Component + Default, M: Default
 {
 	pub button_bundle: ButtonBundle,
 	pub theme: Theme,
@@ -82,11 +109,15 @@ pub struct BaseButton<U, M>
 
 	pub aspect_ratio: Option<f32>,
 
+	pub image: Option<UiImage>,
+	pub focused_image: Option<UiImage>,
+	pub active_image: Option<UiImage>,
+
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	phantom: std::marker::PhantomData<M>,
 }
 
-impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
+impl<U: Component + Default, M: Default> BaseButton<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -114,9 +145,31 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 
 			aspect_ratio: None,
 
+			image: None,
+			focused_image: None,
+			active_image: None,
+
 			children: Vec::new(),
 			phantom: std::marker::PhantomData,
 		}
+	}
+
+	pub fn with_image(mut self, image: UiImage) -> Self
+	{
+		self.image = Some(image);
+		self
+	}
+
+	pub fn with_focused_image(mut self, image: UiImage) -> Self
+	{
+		self.focused_image = Some(image);
+		self
+	}
+
+	pub fn with_active_image(mut self, image: UiImage) -> Self
+	{
+		self.active_image = Some(image);
+		self
 	}
 
 	pub fn push(mut self, child: impl Into<Box<dyn WidgetBuilder<U>>>) -> Self
@@ -132,7 +185,7 @@ impl<U: Component + Default, M: Component + Default> BaseButton<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> super::Widget for BaseButton<U, M>
+impl<U: Component + Default, M: Default> super::Widget for BaseButton<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -209,7 +262,7 @@ impl<U: Component + Default, M: Component + Default> super::Widget for BaseButto
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseButton<U, M>
+impl<U: Component + Default, M: Default> ThemeApplicator for BaseButton<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
@@ -250,16 +303,42 @@ impl<U: Component + Default, M: Component + Default> ThemeApplicator for BaseBut
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseButton<U, M>
+impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for BaseButton<U, M>
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
+		// Check if M is a Component
+		let m_component_check: Box<dyn Reflect> = Box::new(M::default());
+		let m_component_check = !m_component_check.represents::<()>();
+		let mut parent_data = parent_data;
+		if m_component_check
+		{
+			let mut ui_tree = ui_tree.0.lock().unwrap();
+			// Update the tree
+			if parent_data.parent_ui_owner.is_none()
+			{
+				// If the parent UI Owner is None, then we need to add a new node to the tree.
+				ui_tree.new_node(M::default().type_id());
+				parent_data.parent_ui_owner = Some(U::default().type_id().into());
+			}
+			let parent_node_typeid = parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0;
+			let parent_node = ui_tree
+				.iter()
+				.filter(|node| !node.is_removed())
+				.find(|node| *node.get() == parent_node_typeid)
+				.expect("Parent node not found in the UI Tree.");
+			let parent_node = ui_tree.get_node_id(parent_node).expect("Parent node not found in the UI Tree.");
+			let new_node = ui_tree.new_node(M::default().type_id());
+			parent_node.append(new_node, &mut ui_tree);
+			// Update the ParentData
+			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();
+		}
 		// Apply theming.
 		self.apply_theme(parent_data.resolve_theme(), theme);
 
 		// Build children.
 		let new_parent_data = parent_data.from_current(self.theme);
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme, new_parent_data, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(ui_tree, theme, new_parent_data, commands)).collect();
 
 		let mut button = commands.spawn(self.button_bundle.clone());
 		if let Some(aspect_ratio) = self.aspect_ratio
@@ -268,19 +347,54 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for BaseBu
 		}
 		button
 			.insert(U::default())
-			.insert(M::default())
 			.insert(AutoStyledButton)
 			.insert(CurrentTheme(self.theme, std::marker::PhantomData::<U>))
 			.insert(Focusable::default())
 			.push_children(&children)
 			;
+
+		if m_component_check
+		{
+				let m_component: Box<dyn Reflect> = Box::new(M::default());
+				use bevy::ecs::reflect::ReflectCommandExt;
+				button.insert_reflect(m_component);
+				// Also insert it as an UIOwner
+				let ui_owner = crate::UIOwner(M::default().type_id());
+				button.insert(ui_owner);
+
+			// else { panic!("M is a Component, but it's not a Reflect. This is not supported."); }
+		}
+		else
+		{
+			// Otherwise inherit the parent's UIOwner.
+			let default_owner = crate::UIOwner(U::default().type_id());
+			let owner = parent_data.parent_ui_owner.unwrap_or(default_owner);
+			button.insert(owner);
+			parent_data.parent_ui_owner = Some(owner);
+		}
+
+		if let Some(image) = &self.image
+		{
+			button.insert(image.clone());
+		}
+
+		if let Some(focused_image) = &self.focused_image
+		{
+			button.insert(FocusedImage(focused_image.clone()));
+		}
+
+		if let Some(active_image) = &self.active_image
+		{
+			button.insert(ActiveImage(active_image.clone()));
+		}
+
 		if self.auto_style
 			{ button.insert(AutoStyledButton); }
 		button.id()
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Into<Box<dyn WidgetBuilder<U>>> for BaseButton<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

@@ -71,6 +71,43 @@ pub static DARK: Lazy<ThemeData> = Lazy::new
 	}
 );
 
+pub const DEFAULT_TRANSPARENT_OPACITY: f32 = 0.85;
+
+pub static TRANSPARENT: Lazy<ThemeData> = Lazy::new
+(
+	||
+	ThemeData
+	{
+		base: Color::BLACK.lighten(0.33),
+		base_foreground: Color::WHITE,
+		base_container: Color::BLACK.with_a(0.0),
+		base_container_foreground: Color::WHITE,
+
+		primary: colours::ENGLISH_VIOLET.darken(0.20),
+		primary_foreground: colours::ENGLISH_VIOLET.lighten(0.75),
+		primary_container: colours::ENGLISH_VIOLET.with_a(DEFAULT_TRANSPARENT_OPACITY),
+		primary_container_foreground: colours::ENGLISH_VIOLET.lighten(0.9),
+
+		secondary: *colours::RAISIN_BLACK,
+		secondary_foreground: colours::RAISIN_BLACK.lighten(0.75),
+		secondary_container: colours::RAISIN_BLACK.lighten(0.33).with_a(DEFAULT_TRANSPARENT_OPACITY),
+		secondary_container_foreground: colours::RAISIN_BLACK.lighten(0.9),
+
+		tertiary: colours::WALNUT_BROWN.darken(0.33),
+		tertiary_foreground: colours::WALNUT_BROWN.lighten(0.75),
+		tertiary_container: colours::WALNUT_BROWN.with_a(DEFAULT_TRANSPARENT_OPACITY),
+		tertiary_container_foreground: colours::WALNUT_BROWN.lighten(0.9),
+
+		disabled: Color::GRAY.darken(0.33),
+		disabled_foreground: Color::WHITE,
+
+		destructive: Color::RED.darken(0.33),
+		destructive_foreground: Color::WHITE,
+
+		default_font: None,
+	}
+);
+
 
 impl Default for ThemeData
 {

@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
-use super::{WidgetBuilder, ParentData};
+use super::{ParentData, UIOptionalUniqueIdentifier, WidgetBuilder};
 use crate::theme::{Theme, ThemeApplicator, CurrentTheme, PaintMode};
 
 // A container is just a NodeBundle with extra steps. You should use other widgets (Column, Row, etc.) instead of this.
-pub struct Container<U>
-	where U: Component + Default
+pub struct Container<U, M = ()>
+	where U: Component + Default, M: UIOptionalUniqueIdentifier
 {
 	pub children: Vec<Box<dyn WidgetBuilder<U>>>,
 	pub node_bundle: NodeBundle,
@@ -13,10 +13,11 @@ pub struct Container<U>
 	pub custom_padding: Option<UiRect>,
 	pub custom_margin: Option<UiRect>,
 	pub aspect_ratio: Option<f32>,
-	pub paint_mode: PaintMode
+	pub paint_mode: PaintMode,
+	phantom: std::marker::PhantomData<M>
 }
 
-impl<U: Component + Default> Container<U>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Container<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -42,7 +43,8 @@ impl<U: Component + Default> Container<U>
 			custom_padding: None,
 			custom_margin: None,
 			aspect_ratio: None,
-			paint_mode: PaintMode::BackgroundContainer
+			paint_mode: PaintMode::BackgroundContainer,
+			phantom: std::marker::PhantomData
 		}
 	}
 
@@ -61,7 +63,7 @@ impl<U: Component + Default> Container<U>
 }
 
 
-impl<U: Component + Default> super::Widget for Container<U>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> super::Widget for Container<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -140,7 +142,7 @@ impl<U: Component + Default> super::Widget for Container<U>
 
 }
 
-impl<U: Component + Default> ThemeApplicator for Container<U>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> ThemeApplicator for Container<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &crate::theme::ThemeData)
 	{
@@ -178,20 +180,68 @@ impl<U: Component + Default> ThemeApplicator for Container<U>
 	}
 }
 
-impl<U: Component + Default> WidgetBuilder<U> for Container<U>
+impl<U: Component + Default + std::any::Any, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for Container<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &crate::theme::ThemeData, mut parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
+		// Check if M is a Component
+		let m_component_check: Box<dyn Reflect> = Box::new(M::default());
+		let m_component_check = !m_component_check.represents::<()>();
+		if m_component_check
+		{
+			let mut ui_tree = ui_tree.0.lock().unwrap();
+			// Update the tree
+			if parent_data.parent_ui_owner.is_none()
+			{
+				// If the parent UI Owner is None, then we need to add a new node to the tree.
+				ui_tree.new_node(U::default().type_id());
+				parent_data.parent_ui_owner = Some(U::default().type_id().into());
+			}
+
+			let parent_node_typeid = parent_data.parent_ui_owner.unwrap_or(U::default().type_id().into()).0;
+			let parent_node = ui_tree
+				.iter()
+				.filter(|node| !node.is_removed())
+				.find(|node| *node.get() == parent_node_typeid)
+				.expect("Parent node not found in the UI Tree.");
+			let parent_node = ui_tree.get_node_id(parent_node).expect("Parent node not found in the UI Tree.");
+			let new_node = ui_tree.new_node(M::default().type_id());
+			parent_node.append(new_node, &mut ui_tree);
+
+			// Update the ParentData
+			parent_data.parent_ui_owner = crate::UIOwner(M::default().type_id()).into();
+		}
+
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
 		let new_parent_data = parent_data.from_current(self.theme);
 
-		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(theme_data, new_parent_data, commands)).collect();
+		let children: Vec<Entity> = self.children.iter_mut().map(|child| child.build(ui_tree, theme_data, new_parent_data, commands)).collect();
 		let mut this_container = commands.spawn(self.node_bundle.clone()); // TODO: See if we can avoid cloning the node bundle.
 
 		if let Some(aspect_ratio) = self.aspect_ratio
 		{
 			this_container.insert(super::AspectRatio(aspect_ratio));
+		}
+
+		if m_component_check
+		{
+				let m_component: Box<dyn Reflect> = Box::new(M::default());
+				use bevy::ecs::reflect::ReflectCommandExt;
+				this_container.insert_reflect(m_component);
+				// Also insert it as an UIOwner
+				let ui_owner = crate::UIOwner(M::default().type_id());
+				this_container.insert(ui_owner);
+
+			// else { panic!("M is a Component, but it's not a Reflect. This is not supported."); }
+		}
+		else
+		{
+			// Otherwise inherit the parent's UIOwner.
+			let default_owner = crate::UIOwner(U::default().type_id());
+			let owner = parent_data.parent_ui_owner.unwrap_or(default_owner);
+			this_container.insert(owner);
+			parent_data.parent_ui_owner = Some(owner);
 		}
 
 		this_container
@@ -202,9 +252,9 @@ impl<U: Component + Default> WidgetBuilder<U> for Container<U>
 	}
 }
 
-impl<U: Component + Default> From<Container<U>> for Box<dyn WidgetBuilder<U>>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> From<Container<U, M>> for Box<dyn WidgetBuilder<U>>
 {
-	fn from(container: Container<U>) -> Self
+	fn from(container: Container<U, M>) -> Self
 	{
 		Box::new(container)
 	}

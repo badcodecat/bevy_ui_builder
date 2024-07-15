@@ -39,14 +39,14 @@ pub fn handle_checkbox_toggle
 	}
 }
 
-pub struct CheckBox<U, M>
-	where U: Component + Default, M: Component + Default
+pub struct CheckBox<U, M = ()>
+	where U: Component + Default, M: UIOptionalUniqueIdentifier
 {
 	pub text_button: TextButton<U, M>,
 	pub initial_checked_state: bool,
 }
 
-impl<U: Component + Default, M: Component + Default> CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> CheckBox<U, M>
 {
 	pub fn new() -> Self
 	{
@@ -68,7 +68,7 @@ impl<U: Component + Default, M: Component + Default> CheckBox<U, M>
 }
 
 
-impl<U: Component + Default, M: Component + Default> Widget for CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for CheckBox<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 		{ self.text_button = self.text_button.with_paint_mode(paint_mode); self }
@@ -96,16 +96,16 @@ impl<U: Component + Default, M: Component + Default> Widget for CheckBox<U, M>
 		{ self.text_button = self.text_button.with_theme(theme); self }
 }
 
-impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for CheckBox<U, M>
 {
-	fn build(&mut self, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		// Apply the initial checked state.
 		// TODO: This code is ugly, can pretty?
 		self.text_button.label.label.text.sections[0].value = if self.initial_checked_state { "X" } else { " " }.to_string();
 
 		// Build the button.
-		let button_entity = self.text_button.build(theme_data, parent_data, commands);
+		let button_entity = self.text_button.build(ui_tree, theme_data, parent_data, commands);
 
 		// Add the checkbox state.
 		commands.entity(button_entity)
@@ -117,7 +117,7 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for CheckB
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for CheckBox<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Into<Box<dyn WidgetBuilder<U>>> for CheckBox<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

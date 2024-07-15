@@ -5,9 +5,9 @@ use bevy::prelude::*;
 pub mod container;
 pub use container::*;
 // Utility function to create a container with a fill portion.
-pub fn create_space<U: Component + Default>(size: f32) -> container::Container<U>
+pub fn create_space<U: Component + Default>(size: f32) -> container::Container<U, ()>
 {
-	container::Container::new()
+	container::Container::<_, ()>::new()
 		.with_fill_portion(size)
 }
 
@@ -37,7 +37,7 @@ pub use checkbox::*;
 pub mod dropdown;
 pub use dropdown::*;
 
-use crate::theme::{Theme, PaintMode};
+use crate::{theme::{PaintMode, Theme}, UIOwner};
 
 // pub fn compute_val(val: Val, parent_size: f32) -> f32
 // {
@@ -48,16 +48,18 @@ use crate::theme::{Theme, PaintMode};
 // 		Val::Auto
 // 	}
 // }
-pub fn resize_on_window_change
-(
-	_window_change_query: Query<((), Changed<Window>)>, // We only need to know if the window changed.
-	mut resize_writer: EventWriter<TextResizeEvent>,
-	mut aspect_ratio_writer: EventWriter<AspectRatioEvent>
-)
-{
-	resize_writer.send(TextResizeEvent);
-	aspect_ratio_writer.send(AspectRatioEvent);
-}
+
+// ! I'm not sure what this system used to do, but as of Bevy 0.13, it's no longer working (Changed<Window> gives an error).
+// pub fn resize_on_window_change
+// (
+// 	_window_change_query: Query<((), Changed<Window>)>, // We only need to know if the window changed.
+// 	mut resize_writer: EventWriter<TextResizeEvent>,
+// 	mut aspect_ratio_writer: EventWriter<AspectRatioEvent>
+// )
+// {
+// 	resize_writer.send(TextResizeEvent);
+// 	aspect_ratio_writer.send(AspectRatioEvent);
+// }
 
 pub fn resize_on_window_resize
 (
@@ -79,7 +81,7 @@ pub struct AspectRatioEvent;
 #[derive(Component, Default)]
 pub struct AspectRatio(pub f32);
 
-// ! FIXME: This is completely broken.
+// ! FIXME: This is mostly completely broken.
 pub fn ensure_aspect_ratio
 (
 	aspect_ratio_events: EventReader<AspectRatioEvent>,
@@ -125,6 +127,8 @@ pub fn ensure_aspect_ratio
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct ParentData
 {
+	/// The owner of the parent UI
+	pub parent_ui_owner: Option<UIOwner>,
 	/// The last theme in the tree that isn't Theme::Auto or Theme::Custom.
 	pub last_theme: Theme,
 	/// The parent's theme. (Can be Theme::Auto or Theme::Custom)
@@ -136,10 +140,11 @@ pub struct ParentData
 impl ParentData
 {
 	/// This is mostly for internal use.
-	pub fn new(last_theme: Theme, current_theme: Theme, z_index: i8) -> Self
+	pub fn new(last_theme: Theme, current_theme: Theme, z_index: i8, ui_owner: UIOwner) -> Self
 	{
 		Self
 		{
+			parent_ui_owner: Some(ui_owner),
 			last_theme,
 			current_theme,
 			z_index,
@@ -163,6 +168,7 @@ impl ParentData
 		};
 		Self
 		{
+			parent_ui_owner: self.parent_ui_owner,
 			last_theme,
 			current_theme,
 			z_index: self.z_index,
@@ -176,6 +182,7 @@ impl Default for ParentData
 	{
 		Self
 		{
+			parent_ui_owner: None,
 			last_theme: Theme::Auto,
 			current_theme: Theme::Auto,
 			z_index: 0,
@@ -184,15 +191,18 @@ impl Default for ParentData
 
 }
 
+pub trait UIOptionalUniqueIdentifier: Default + Reflect + std::any::Any {}
+impl<T: Default + Reflect + std::any::Any> UIOptionalUniqueIdentifier for T {}
+
 pub trait WidgetBuilder<U>
 	where U: Component + Default
 {
-	fn build(&mut self, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity;
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme: &crate::theme::ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity;
 }
 
 impl<U: Component + Default> WidgetBuilder<U> for Entity
 {
-	fn build(&mut self, _: &crate::theme::ThemeData, _parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, _:&mut crate::UIHierarchy<U>, _: &crate::theme::ThemeData, _parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		commands.entity(*self).insert(U::default()).id()
 	}

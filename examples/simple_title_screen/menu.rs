@@ -12,6 +12,10 @@ impl Plugin for MenuPlugin
 	{
 		app
 		.add_plugins(UIEventsPlugin)
+		// Need to register all reflectable types
+		.register_type::<PlayButton>()
+		.register_type::<NameInput>()
+		.register_type::<QuitButton>()
 		.add_plugins
 		(
 			UIBuilderPlugin::<MyUI, _>::new(ApplicationState::Menu)
@@ -34,23 +38,26 @@ impl Plugin for MenuPlugin
 #[derive(Default, Component)]
 pub struct MyUI;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct PlayButton;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct NameInput;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct QuitButton;
 
 
-fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
+fn build_root(mut commands: Commands, mut ui_tree: ResMut<UIHierarchy<MyUI>>, theme: Res<CurrentThemeData<MyUI>>)
 {
 	commands.spawn(Camera2dBundle::default())
 		.insert(MyUI);
 	let column = bevy_ui_builder::widgets::Column::<MyUI>::new()
 		.with_fill_portion(3f32);
-	let title = bevy_ui_builder::widgets::TextLabel::new("My Awesome Game")
+	let title = bevy_ui_builder::widgets::TextLabel::<_>::new("My Awesome Game")
 		;
 	let space = bevy_ui_builder::widgets::create_space(1f32);
 	let play_button = bevy_ui_builder::widgets::TextButton::<_, PlayButton>::new("Play");
@@ -64,11 +71,11 @@ fn build_root(mut commands: Commands, theme: Res<CurrentThemeData<MyUI>>)
 		.push(quit_button)
 		.push(bevy_ui_builder::widgets::create_space(3f32))
 		;
-	bevy_ui_builder::widgets::Row::new()
+	bevy_ui_builder::widgets::Row::<_>::new()
 		.push(bevy_ui_builder::widgets::create_space(1f32))
 		.push(column)
 		.push(bevy_ui_builder::widgets::create_space(1f32))
-		.build(&theme.0, ParentData::default(), &mut commands)
+		.build(&mut ui_tree, &theme.0, ParentData::default(), &mut commands)
 		;
 }
 

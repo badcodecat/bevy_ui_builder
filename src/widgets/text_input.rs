@@ -54,14 +54,14 @@ pub fn handle_text_input
 (
 	mut query: Query<(&mut EditableText, &mut EditCursor, &Focusable, Option<&AllowsNewlines>)>,
 	mut text_input: EventReader<ReceivedCharacter>,
-	keyboard_input: ResMut<Input<KeyCode>>,
+	keyboard_input: ResMut<ButtonInput<KeyCode>>,
 )
 {
 	for (mut text, mut cursor, focusable, allows_newlines) in query.iter_mut()
 	{
 		if focusable.state() != FocusState::Focused
 			{ continue; }
-		if keyboard_input.just_pressed(KeyCode::Back)
+		if keyboard_input.just_pressed(KeyCode::Backspace)
 		{
 			if cursor.position > 0
 			{
@@ -76,21 +76,21 @@ pub fn handle_text_input
 				text.text.remove(cursor.position);
 			}
 		}
-		else if keyboard_input.just_pressed(KeyCode::Left)
+		else if keyboard_input.just_pressed(KeyCode::ArrowLeft)
 		{
 			if cursor.position > 0
 			{
 				cursor.position -= 1;
 			}
 		}
-		else if keyboard_input.just_pressed(KeyCode::Right)
+		else if keyboard_input.just_pressed(KeyCode::ArrowRight)
 		{
 			if cursor.position < text.text.len()
 			{
 				cursor.position += 1;
 			}
 		}
-		else if keyboard_input.just_pressed(KeyCode::Return)
+		else if keyboard_input.just_pressed(KeyCode::Enter)
 		{
 			if allows_newlines.is_some()
 			{
@@ -108,24 +108,33 @@ pub fn handle_text_input
 		}
 		for event in text_input.read()
 		{
-			if event.char.is_control()
-				{ continue; }
-			text.text.insert(cursor.position, event.char);
-			cursor.position += 1;
+			// if event.char.chars().count() != 1
+			// {
+			// 	warn!("ReceivedCharacter event contained more than one character, skipping.");
+			// 	continue;
+			// }
+			// let character : char = event.char.chars().next().expect("ReceivedCharacter event contained no characters.");
+			for character in event.char.chars()
+			{
+				if character.is_control()
+					{ continue; }
+				text.text.insert(cursor.position, character);
+				cursor.position += 1;
+			}
 		}
 	}
 }
 
 
-pub struct TextInput<U: Component + Default, M: Component + Default>
+pub struct TextInput<U: Component + Default, M: UIOptionalUniqueIdentifier = ()>
 {
-	pub label: TextLabel<U>,
+	pub label: TextLabel<U, M>,
 	pub placeholder: Option<String>,
 	pub allows_newlines: bool,
 	phantom: PhantomData<M>,
 }
 
-impl<U: Component + Default, M: Component + Default> TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> TextInput<U, M>
 {
 	pub fn new(text: Option<String>) -> Self
 	{
@@ -147,7 +156,7 @@ impl<U: Component + Default, M: Component + Default> TextInput<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Widget for TextInput<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 	{
@@ -211,17 +220,16 @@ impl<U: Component + Default, M: Component + Default> Widget for TextInput<U, M>
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> WidgetBuilder<U> for TextInput<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
-		let entity = self.label.build(theme_data, parent_data, commands);
+		let entity = self.label.build(ui_tree, theme_data, parent_data, commands);
 		let mut entity = commands.entity(entity);
 		entity
 			.insert(Focusable::default())
 			.insert(EditableText::default())
 			.insert(EditCursor::default())
-			.insert(M::default())
 			;
 		if let Some(placeholder) = &self.placeholder
 		{ entity.insert(PlaceholderText { text: placeholder.clone() }); }
@@ -231,7 +239,7 @@ impl<U: Component + Default, M: Component + Default> WidgetBuilder<U> for TextIn
 	}
 }
 
-impl<U: Component + Default, M: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
+impl<U: Component + Default, M: UIOptionalUniqueIdentifier> Into<Box<dyn WidgetBuilder<U>>> for TextInput<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{

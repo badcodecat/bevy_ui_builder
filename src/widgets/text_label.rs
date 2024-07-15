@@ -42,10 +42,10 @@ pub fn resize_text
 		}
 	}
 }
-pub struct TextLabel<U>
-	where U: Component + Default
+pub struct TextLabel<U, M = ()>
+	where U: Component + Default, M: Default + std::any::Any + Reflect
 {
-	pub container: Container<U>,
+	pub container: Container<U, M>,
 	pub theme: Theme,
 	pub label: TextBundle,
 	pub custom_font: Option<Handle<Font>>,
@@ -53,7 +53,7 @@ pub struct TextLabel<U>
 	pub fixed_text_size: Option<f32>
 }
 
-impl<U: Component + Default> TextLabel<U>
+impl<U: Component + Default, M: Default + std::any::Any + Reflect> TextLabel<U, M>
 {
 	pub fn new(text: impl Into<String>) -> Self
 	{
@@ -73,7 +73,7 @@ impl<U: Component + Default> TextLabel<U>
 			{
 				text: Text
 				{
-					alignment: TextAlignment::Center,
+					justify: JustifyText::Center,
 					sections: vec![text],
 					..Default::default()
 				},
@@ -104,7 +104,7 @@ impl<U: Component + Default> TextLabel<U>
 	}
 }
 
-impl<U: Component + Default> Widget for TextLabel<U>
+impl<U: Component + Default, M: Default + std::any::Any + Reflect> Widget for TextLabel<U, M>
 {
 	fn with_paint_mode(mut self, paint_mode: PaintMode) -> Self
 		{ self.container = self.container.with_paint_mode(paint_mode); self }
@@ -132,7 +132,7 @@ impl<U: Component + Default> Widget for TextLabel<U>
 		{ self.container = self.container.with_theme(theme); self }
 }
 
-impl<U: Component + Default> ThemeApplicator for TextLabel<U>
+impl<U: Component + Default, M: Default + std::any::Any + Reflect> ThemeApplicator for TextLabel<U, M>
 {
 	fn apply_theme(&mut self, parent_theme: Theme, theme_data: &ThemeData)
 	{
@@ -196,7 +196,7 @@ pub fn clone_text_bundle(text_bundle: &TextBundle) -> TextBundle
 	}
 }
 
-impl<U: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextLabel<U>
+impl<U: Component + Default, M: Default + 'static + Reflect> Into<Box<dyn WidgetBuilder<U>>> for TextLabel<U, M>
 {
 	fn into(self) -> Box<dyn WidgetBuilder<U>>
 	{
@@ -204,9 +204,9 @@ impl<U: Component + Default> Into<Box<dyn WidgetBuilder<U>>> for TextLabel<U>
 	}
 }
 
-impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
+impl<U: Component + Default, M: Default + 'static + Reflect> WidgetBuilder<U> for TextLabel<U, M>
 {
-	fn build(&mut self, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
+	fn build(&mut self, ui_tree: &mut crate::UIHierarchy<U>, theme_data: &ThemeData, parent_data: ParentData, commands: &mut Commands) -> Entity
 	{
 		self.apply_theme(parent_data.resolve_theme(), theme_data);
 
@@ -217,7 +217,7 @@ impl<U: Component + Default> WidgetBuilder<U> for TextLabel<U>
 			section.style.font_size = font_size;
 		}
 
-		let container = self.container.build(theme_data, parent_data, commands);
+		let container = self.container.build(ui_tree, theme_data, parent_data, commands);
 
 		let mut container = commands.entity(container);
 		if self.fixed_text_size.is_none()
