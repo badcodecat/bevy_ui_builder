@@ -12,7 +12,7 @@ Right now this is up to date with bevy 0.13
 | 0.13 | 0.3.3 |
 | 0.12 | 0.2.0 |
 
-Add `bevy_ui_builder = { git = "https://github.com/badcodecat/bevy_ui_builder.git" }` to your Cargo.toml.
+Add `bevy_ui_builder = { git = "https://github.com/badcodecat/bevy_ui_builder.git", tag = "v0.3.3" }` to your Cargo.toml.
 
 There are some samples of how to use this in the examples directory.
 
